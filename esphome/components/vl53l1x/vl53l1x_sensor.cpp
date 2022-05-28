@@ -15,8 +15,7 @@ namespace vl53l1x {
 std::list<VL53L1XSensor *> VL53L1XSensor::vl53l1x_sensors; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 bool VL53L1XSensor::enable_pin_setup_complete = false; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
-VL53L1XSensor::VL53L1XSensor(GPIOPin *shutdownPin, GPIOPin *irqPin, uint8_t i2CAdr)
-    : Adafruit_VL53L1X(shutdownPin, irqPin, i2CAdr) { VL53L1XSensor::vl53l1x_sensors.push_back(this); }
+VL53L1XSensor::VL53L1XSensor() { VL53L1XSensor::vl53l1x_sensors.push_back(this); }
 
 
 void VL53L1XSensor::dump_config() {

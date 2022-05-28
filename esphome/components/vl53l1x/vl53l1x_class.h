@@ -111,13 +111,11 @@ class VL53L1X : public i2c::I2CDevice, public RangeSensor, public VL53L1XErrorCo
     * @param[in] i2c device I2C to be used for communication
     * @param[in] pin shutdown pin to be used as component GPIO0
    */
-  VL53L1X(uint8_t i2c_adr, GPIOPin *pin) : RangeSensor(), gpio0(pin) {
-    set_i2c_address(i2c_adr);
-  }
+  VL53L1X();
 
   /** Destructor
    */
-  virtual ~VL53L1X() {}
+  virtual ~VL53L1X();
   /* warning: VL53L1X class inherits from GenericSensor, RangeSensor and LightSensor, that haven`t a destructor.
      The warning should request to introduce a virtual destructor to make sure to delete the object */
 

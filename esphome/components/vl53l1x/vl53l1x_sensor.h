@@ -22,7 +22,7 @@ static const char *const TAG = "vl53l1x";
 
 class VL53L1XSensor : public sensor::Sensor, public PollingComponent, public Adafruit_VL53L1X {
  public:
-  VL53L1XSensor(GPIOPin *shutdownPin, GPIOPin *irqPin, uint8_t i2CAdr);
+  VL53L1XSensor();
   void setup() override;
   void dump_config() override;
   float get_setup_priority() const override { return setup_priority::DATA; }

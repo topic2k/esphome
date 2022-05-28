@@ -37,7 +37,7 @@ namespace vl53l1x {
 /**************************************************************************/
 class Adafruit_VL53L1X : public VL53L1X {
 public:
-  Adafruit_VL53L1X(GPIOPin *shutdown_pin, GPIOPin *irq_pin, uint8_t i2c_adr);
+  Adafruit_VL53L1X();
 
   bool begin(uint8_t i2c_addr = VL53L1X_I2C_ADDR);
   uint16_t sensorID(void);

@@ -41,8 +41,7 @@ namespace vl53l1x {
     @param irq_pin Optional specify pin attached to interrupt
 */
 /**************************************************************************/
-Adafruit_VL53L1X::Adafruit_VL53L1X(GPIOPin *shutdown_pin, GPIOPin *irq_pin, uint8_t i2c_adr)
-    : VL53L1X(i2c_adr, irq_pin), _shutdown_pin(shutdown_pin) { }
+Adafruit_VL53L1X::Adafruit_VL53L1X() {}
 
 /**************************************************************************/
 /*!
