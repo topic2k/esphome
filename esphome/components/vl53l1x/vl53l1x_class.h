@@ -43,6 +43,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "esphome/core/gpio.h"
+#include "esphome/components/i2c/i2c.h"
 #include "RangeSensor.h"
 #include "vl53l1x_error_codes.h"
 #include "Arduino.h"
@@ -125,7 +126,8 @@ public:
     * @param[in] i2c device I2C to be used for communication
     * @param[in] pin shutdown pin to be used as component GPIO0
     */
-   VL53L1X(esphome::i2c::I2CDevice *i2c, esphome::GPIOPin *pin) : RangeSensor(), gpio0(pin) {
+   VL53L1X(I2CDevice *i2c, GPIOPin *pin) : RangeSensor() {
+      gpio0 = pin;
       dev_i2c = i2c;
    }
 
@@ -139,7 +141,7 @@ public:
     {
        if(gpio0 != nullptr)
        {
-          gpio0->pin_mode(esphome::gpio::FLAG_OUTPUT);
+          gpio0->pin_mode(gpio::FLAG_OUTPUT);
        }
        return 0;
     }
@@ -148,7 +150,7 @@ public:
     {
        if(gpio0 != nullptr)
        {
-         gpio0->pin_mode(esphome::gpio::FLAG_INPUT);
+         gpio0->pin_mode(gpio::FLAG_INPUT);
        }
        return 0;
     }
@@ -557,9 +559,9 @@ protected:
    VL53L1X_ERROR VL53L1X_WaitValueMaskEx(uint32_t timeout_ms, uint16_t index, uint8_t value, uint8_t mask, uint32_t poll_delay_ms);
 
    /* IO Device */
-   esphome::i2c::I2CDevice *dev_i2c{nullptr};
+   I2CDevice *dev_i2c{nullptr};
    /* Digital out pin */
-   esphome::GPIOPin *gpio0{nullptr};
+   GPIOPin *gpio0{nullptr};
 };
 
 #endif /* _VL53L1X_CLASS_H_ */

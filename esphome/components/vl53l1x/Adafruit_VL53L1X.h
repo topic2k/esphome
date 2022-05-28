@@ -33,9 +33,9 @@
 /**************************************************************************/
 class Adafruit_VL53L1X : public VL53L1X {
 public:
-  Adafruit_VL53L1X(esphome::GPIOPin *hutdown_pin, esphome::GPIOPin *irq_pin, esphome::i2c::I2CDevice *esph_i2c);
+  Adafruit_VL53L1X(GPIOPin *shutdown_pin, GPIOPin *irq_pin, I2CDevice *esph_i2c);
 
-  bool begin(uint8_t i2c_addr = VL53L1X_I2C_ADDR, esphome::i2c::I2CDevice *theWire = nullptr, bool debug = false);
+  bool begin(uint8_t i2c_addr = VL53L1X_I2C_ADDR, I2CDevice *theWire = nullptr, bool debug = false);
   uint16_t sensorID(void);
 
   bool startRanging(void);
@@ -62,9 +62,9 @@ public:
   VL53L1X_ERROR vl_status; /**< VL53L1X API Error Status */
 
 private:
-  esphome::GPIOPin *_irq_pin{nullptr};
-  esphome::GPIOPin *_shutdown_pin{nullptr};
-  esphome::i2c::I2CDevice *_esph_i2c;
+  GPIOPin *_irq_pin{nullptr};
+  GPIOPin *_shutdown_pin{nullptr};
+  I2CDevice *_esph_i2c;
 
 };
 

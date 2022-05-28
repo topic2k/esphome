@@ -21,7 +21,7 @@ namespace vl53l1x {
 static const char *const TAG = "vl53l1x";
 using VL53L1X_Error = int8_t;
 
-class VL53L1XSensor : public sensor::Sensor, public PollingComponent, public i2c::I2CDevice {
+class VL53L1XSensor : public sensor::Sensor, public PollingComponent, public I2CDevice {
  public:
   uint16_t VL53L1X_I2C_SENSOR_DEVICE_ADDRESS = 0x0001;
   uint16_t VL53L1X_VHV_CONFIG_TIMEOUT_MACROP_LOOP_BOUND = 0x0008;
