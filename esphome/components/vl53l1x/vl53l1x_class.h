@@ -29,7 +29,14 @@
 
 
 /* Includes ------------------------------------------------------------------*/
+#include <list>
+
+#include "esphome/core/hal.h"
+#include "esphome/components/sensor/sensor.h"
+#include "esphome/components/i2c/i2c.h"
+#include "esphome/core/hal.h"
 #include "esphome/core/gpio.h"
+#include "esphome/core/log.h"
 #include "esphome/components/i2c/i2c.h"
 #include "RangeSensor.h"
 #include "vl53l1x_error_codes.h"
@@ -37,6 +44,8 @@
 
 namespace esphome {
 namespace vl53l1x {
+
+static const char *const TAG = "vl53l1x_class";
 
 #define VL53L1X_IMPLEMENTATION_VER_MAJOR 1
 #define VL53L1X_IMPLEMENTATION_VER_MINOR 0
@@ -120,6 +129,7 @@ class VL53L1X : public i2c::I2CDevice, public RangeSensor, public VL53L1XErrorCo
      The warning should request to introduce a virtual destructor to make sure to delete the object */
 
   virtual int begin() {
+    ESP_LOGE(TAG, " - class.begin()");
     if (gpio0 != nullptr) {
       gpio0->pin_mode(gpio::FLAG_OUTPUT);
     }
@@ -127,6 +137,7 @@ class VL53L1X : public i2c::I2CDevice, public RangeSensor, public VL53L1XErrorCo
   }
 
   virtual int end() {
+    ESP_LOGE(TAG, " - class.end()");
     if (gpio0 != nullptr) {
       gpio0->pin_mode(gpio::FLAG_INPUT);
     }

@@ -147,8 +147,12 @@ const uint8_t VL51L1X_DEFAULT_CONFIGURATION[] =
 };
 //</editor-fold>
 
-VL53L1X::VL53L1X() {}
-VL53L1X::~VL53L1X() {}
+VL53L1X::VL53L1X() {
+  ESP_LOGE(TAG, " - VL53L1X()");
+}
+VL53L1X::~VL53L1X() {
+  ESP_LOGE(TAG, " - ~VL53L1X()");
+}
 
 
 /* VL53L1X_api.h functions */

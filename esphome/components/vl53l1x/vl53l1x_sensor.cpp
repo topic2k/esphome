@@ -15,7 +15,10 @@ namespace vl53l1x {
 std::list<VL53L1XSensor *> VL53L1XSensor::vl53l1x_sensors; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 bool VL53L1XSensor::enable_pin_setup_complete = false; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
-VL53L1XSensor::VL53L1XSensor() { VL53L1XSensor::vl53l1x_sensors.push_back(this); }
+VL53L1XSensor::VL53L1XSensor() {
+  ESP_LOGE(TAG, " - VL53L1XSensor()");
+  VL53L1XSensor::vl53l1x_sensors.push_back(this);
+}
 
 
 void VL53L1XSensor::dump_config() {
@@ -51,15 +54,16 @@ void VL53L1XSensor::setup() {
 
   ESP_LOGE(TAG, "'%s' - address_: %x", this->name_.c_str(), address_);
   return;
-  // tof_device_ = Adafruit_VL53L1X(this->enable_pin_, this->irq_pin_, address_);
 
   uint8_t address_to_set = address_;
-//  tof_device_.VL53L1X_SetI2CAddress(VL53L1X_I2C_ADDR);
-//
-//  if (!this->tof_device_.begin(address_to_set)) {
-//    ESP_LOGE(TAG, "'%s' - Sensor init failed", this->name_.c_str());
-//    this->mark_failed();
-//  }
+  if (address_ != VL53L1X_I2C_ADDR) {
+    VL53L1X_SetI2CAddress(VL53L1X_I2C_ADDR);
+  }
+  //
+  if (!begin(address_to_set)) {
+    ESP_LOGE(TAG, "'%s' - Sensor init failed", this->name_.c_str());
+    this->mark_failed();
+  }
 //
   //  if (this->io_2v8_) {
   //    uint8_t val;

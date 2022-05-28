@@ -41,7 +41,9 @@ namespace vl53l1x {
     @param irq_pin Optional specify pin attached to interrupt
 */
 /**************************************************************************/
-Adafruit_VL53L1X::Adafruit_VL53L1X() {}
+Adafruit_VL53L1X::Adafruit_VL53L1X() {
+  ESP_LOGE(TAG, " - Adafruit_VL53L1X()");
+}
 
 /**************************************************************************/
 /*!
