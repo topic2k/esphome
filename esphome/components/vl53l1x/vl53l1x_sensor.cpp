@@ -8,7 +8,7 @@
  */
 
 #include "vl53l1x_sensor.h"
-#include "vl53l1x_lib/Adafruit_VL53L1X.h"
+#include "Adafruit_VL53L1X.h"
 
 namespace esphome {
 namespace vl53l1x {

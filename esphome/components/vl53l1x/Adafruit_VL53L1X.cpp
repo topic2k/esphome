@@ -38,7 +38,7 @@
     @param irq_pin Optional specify pin attached to interrupt
 */
 /**************************************************************************/
-Adafruit_VL53L1X::Adafruit_VL53L1X(GPIOPin *shutdown_pin, GPIOPin *irq_pin, I2CDevice *esph_i2c)
+Adafruit_VL53L1X::Adafruit_VL53L1X(esphome::GPIOPin *shutdown_pin, esphome::GPIOPin *irq_pin, esphome::i2c::I2CDevice *esph_i2c)
     : VL53L1X(esph_i2c, irq_pin), _shutdown_pin(shutdown_pin), _esph_i2c(esph_i2c) { }
 
 /**************************************************************************/
@@ -52,9 +52,9 @@ Adafruit_VL53L1X::Adafruit_VL53L1X(GPIOPin *shutdown_pin, GPIOPin *irq_pin, I2CD
     @returns  True if device is set up, false on any failure
 */
 /**************************************************************************/
-bool Adafruit_VL53L1X::begin(uint8_t i2c_addr, i2c::I2CDevice *theWire, bool debug) {
+bool Adafruit_VL53L1X::begin(uint8_t i2c_addr, esphome::i2c::I2CDevice *theWire, bool debug) {
   if (_shutdown_pin != nullptr) {
-    _shutdown_pin->pin_mode(gpio::FLAG_OUTPUT);
+    _shutdown_pin->pin_mode(esphome::gpio::FLAG_OUTPUT);
     _shutdown_pin->digital_write(HIGH);
     _shutdown_pin->digital_write(LOW);
     delay(5);
