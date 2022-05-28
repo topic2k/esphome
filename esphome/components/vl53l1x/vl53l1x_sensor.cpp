@@ -48,7 +48,13 @@ void VL53L1XSensor::setup() {
     this->irq_pin_->setup();
     this->irq_pin_->pin_mode(gpio::FLAG_OUTPUT);
   }
-  tof_device_ = Adafruit_VL53L1X(this->enable_pin_, this->irq_pin_, this);
+
+  ESP_LOGE(TAG, "'%s' - address_: %x", this->name_.c_str(), address_);
+  ESP_LOGE(TAG, "'%s' - sda_pin_: %x", this->name_.c_str(), bus_->sda_pin_);
+  ESP_LOGE(TAG, "'%s' - scl_pin_: %x", this->name_.c_str(), scl_pin_);
+  ESP_LOGE(TAG, "'%s' - frequency_: %x", this->name_.c_str(), frequency_);
+  return
+  tof_device_ = Adafruit_VL53L1X(this->enable_pin_, this->irq_pin_, address_);
 
   uint8_t address_to_set = address_;
   tof_device_.VL53L1X_SetI2CAddress(VL53L1X_I2C_ADDR);

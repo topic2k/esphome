@@ -27,20 +27,6 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#ifndef __VL53L1X_CLASS_H
-#define __VL53L1X_CLASS_H
-
-
-#ifdef _MSC_VER
-#   ifdef VL53L1X_API_EXPORTS
-#       define VL53L1X_API  __declspec(dllexport)
-#   else
-#       define VL53L1X_API
-#   endif
-#else
-#   define VL53L1X_API
-#endif
-
 
 /* Includes ------------------------------------------------------------------*/
 #include "esphome/core/gpio.h"
@@ -119,15 +105,14 @@ typedef struct {
 /* Classes -------------------------------------------------------------------*/
 /** Class representing a VL53L1X sensor component
  */
-class VL53L1X : public RangeSensor, public VL53L1XErrorCodes{
+class VL53L1X : public RangeSensor, public VL53L1XErrorCodes, public i2c::I2CDevice {
  public:
   /** Constructor
     * @param[in] i2c device I2C to be used for communication
     * @param[in] pin shutdown pin to be used as component GPIO0
    */
-  VL53L1X(i2c::I2CDevice *i2c, GPIOPin *pin) : RangeSensor() {
-    gpio0 = pin;
-    esph_i2c = i2c;
+  VL53L1X(uint8_t i2c_adr, GPIOPin *pin) : RangeSensor(), gpio0(pin) {
+    set_i2c_address(i2c_adr);
   }
 
   /** Destructor
@@ -516,13 +501,9 @@ class VL53L1X : public RangeSensor, public VL53L1XErrorCodes{
   VL53L1X_ERROR VL53L1X_WaitValueMaskEx(uint32_t timeout_ms, uint16_t index, uint8_t value, uint8_t mask,
                                         uint32_t poll_delay_ms);
 
-  /* IO Device */
-  i2c::I2CDevice *esph_i2c{nullptr};
   /* Digital out pin */
   GPIOPin *gpio0{nullptr};
 };
 
 }  // namespace vl53l1x
 }  // namespace esphome
-
-#endif /* _VL53L1X_CLASS_H_ */

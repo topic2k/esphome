@@ -1025,7 +1025,7 @@ VL53L1X_ERROR VL53L1X::VL53L1X_I2CWrite(uint16_t RegisterAddr, uint8_t* pBuffer,
     for (idx = 0; idx < NumByteToWrite; idx++) {
         buffer[idx + 2] = pBuffer[idx];
     }
-    this->esph_i2c->write(buffer, 2 + NumByteToWrite, true);
+    this->write(buffer, 2 + NumByteToWrite, true);
     return 0;
 }
 
@@ -1036,10 +1036,10 @@ VL53L1X_ERROR VL53L1X::VL53L1X_I2CRead(uint16_t RegisterAddr, uint8_t* pBuffer, 
         uint8_t buffer[2];
         buffer[0] = (uint8_t)(RegisterAddr >> 8);
         buffer[1] = (uint8_t)(RegisterAddr & 0xFF);
-        status = this->esph_i2c->write(buffer, 2, false);
+        status = this->write(buffer, 2, false);
     } while (status != 0);
 
-    this->esph_i2c->read(pBuffer, NumByteToRead);
+    this->read(pBuffer, NumByteToRead);
     return 0;
 }
 
