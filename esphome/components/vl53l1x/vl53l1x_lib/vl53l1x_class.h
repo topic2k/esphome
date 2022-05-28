@@ -42,10 +42,10 @@
 
 
 /* Includes ------------------------------------------------------------------*/
-#include "Arduino.h"
-#include "Wire.h"
+#include "esphome/core/gpio.h"
 #include "RangeSensor.h"
 #include "vl53l1x_error_codes.h"
+#include "Arduino.h"
 
 
 #define VL53L1X_IMPLEMENTATION_VER_MAJOR       1
@@ -115,17 +115,6 @@ typedef struct
 } VL53L1X_Version_t;
 
 
-typedef struct
-{
-
-   uint8_t   I2cDevAddr;
-   TwoWire *I2cHandle;
-
-} VL53L1X_Dev_t;
-
-typedef VL53L1X_Dev_t *VL53L1X_DEV;
-
-
 /* Classes -------------------------------------------------------------------*/
 /** Class representing a VL53L1X sensor component
  */
@@ -136,12 +125,8 @@ public:
     * @param[in] i2c device I2C to be used for communication
     * @param[in] pin shutdown pin to be used as component GPIO0
     */
-   VL53L1X(TwoWire *i2c, int pin) : RangeSensor(), dev_i2c(i2c), gpio0(pin)
-   {
-      Device = &MyDevice;
-      memset((void *)Device, 0x0, sizeof(VL53L1X_Dev_t));
-      MyDevice.I2cDevAddr=VL53L1X_DEFAULT_DEVICE_ADDRESS;
-      MyDevice.I2cHandle = i2c;
+   VL53L1X(esphome::i2c::I2CDevice *i2c, esphome::GPIOPin *pin) : RangeSensor(), gpio0(pin) {
+      dev_i2c = i2c;
    }
 
    /** Destructor
@@ -152,18 +137,18 @@ public:
 
     virtual int begin()
     {
-       if(gpio0 >= 0)
+       if(gpio0 != nullptr)
        {
-          pinMode(gpio0, OUTPUT);
+          gpio0->pin_mode(esphome::gpio::FLAG_OUTPUT);
        }
        return 0;
     }
 
     virtual int end()
     {
-       if(gpio0 >= 0)
+       if(gpio0 != nullptr)
        {
-          pinMode(gpio0, INPUT);
+         gpio0->pin_mode(esphome::gpio::FLAG_INPUT);
        }
        return 0;
     }
@@ -177,9 +162,9 @@ public:
    /* turns on the sensor */
    virtual void VL53L1X_On(void)
    {
-      if(gpio0 >= 0)
+      if(gpio0 != nullptr)
       {
-         digitalWrite(gpio0, HIGH);
+         gpio0->digital_write(HIGH);
       }
       delay(10);
    }
@@ -191,9 +176,9 @@ public:
    /* turns off the sensor */
    virtual void VL53L1X_Off(void)
    {
-      if(gpio0 >= 0)
+      if(gpio0 != nullptr)
       {
-         digitalWrite(gpio0, LOW);
+         gpio0->digital_write(LOW);
       }
       delay(10);
    }
@@ -214,11 +199,11 @@ public:
 #ifdef DEBUG_MODE
       uint8_t byteData;
       uint16_t wordData;
-      status = VL53L1X_RdByte(Device, 0x010F, &byteData);
+      status = VL53L1X_RdByte(0x010F, &byteData);
       Serial.println("VL53L1X Model_ID: " + String(byteData));
-      status = VL53L1X_RdByte(Device, 0x0110, &byteData);
+      status = VL53L1X_RdByte(0x0110, &byteData);
       Serial.println("VL53L1X Module_Type: " + String(byteData));
-      status = VL53L1X_RdWord(Device, 0x010F, &wordData);
+      status = VL53L1X_RdWord(0x010F, &wordData);
       Serial.println("VL53L1X: " + String(wordData));
 #endif
 
@@ -548,46 +533,33 @@ public:
    int8_t VL53L1X_CalibrateXtalk(uint16_t TargetDistInMm, uint16_t *xtalk);
 
 
-
-
-
-
 protected:
-
 
    /* Write and read functions from I2C */
 
-   VL53L1X_ERROR VL53L1X_WrByte(VL53L1X_DEV dev, uint16_t index, uint8_t data);
-   VL53L1X_ERROR VL53L1X_WrWord(VL53L1X_DEV dev, uint16_t index, uint16_t data);
-   VL53L1X_ERROR VL53L1X_WrDWord(VL53L1X_DEV dev, uint16_t index, uint32_t data);
-   VL53L1X_ERROR VL53L1X_RdByte(VL53L1X_DEV dev, uint16_t index, uint8_t *data);
-   VL53L1X_ERROR VL53L1X_RdWord(VL53L1X_DEV dev, uint16_t index, uint16_t *data);
-   VL53L1X_ERROR VL53L1X_RdDWord(VL53L1X_DEV dev, uint16_t index, uint32_t *data);
-   VL53L1X_ERROR VL53L1X_UpdateByte(VL53L1X_DEV dev, uint16_t index, uint8_t AndData, uint8_t OrData);
+   VL53L1X_ERROR VL53L1X_WrByte(uint16_t index, uint8_t data);
+   VL53L1X_ERROR VL53L1X_WrWord(uint16_t index, uint16_t data);
+   VL53L1X_ERROR VL53L1X_WrDWord(uint16_t index, uint32_t data);
+   VL53L1X_ERROR VL53L1X_RdByte(uint16_t index, uint8_t *data);
+   VL53L1X_ERROR VL53L1X_RdWord(uint16_t index, uint16_t *data);
+   VL53L1X_ERROR VL53L1X_RdDWord(uint16_t index, uint32_t *data);
+   VL53L1X_ERROR VL53L1X_UpdateByte(uint16_t index, uint8_t AndData, uint8_t OrData);
 
-   VL53L1X_ERROR VL53L1X_WriteMulti(VL53L1X_DEV Dev, uint16_t index, uint8_t *pdata, uint32_t count);
-   VL53L1X_ERROR VL53L1X_ReadMulti(VL53L1X_DEV Dev, uint16_t index, uint8_t *pdata, uint32_t count);
+   VL53L1X_ERROR VL53L1X_WriteMulti(uint16_t index, uint8_t *pdata, uint32_t count);
+   VL53L1X_ERROR VL53L1X_ReadMulti(uint16_t index, uint8_t *pdata, uint32_t count);
 
-   VL53L1X_ERROR VL53L1X_I2CWrite(uint8_t dev, uint16_t index, uint8_t *data, uint16_t number_of_bytes);
-   VL53L1X_ERROR VL53L1X_I2CRead(uint8_t dev, uint16_t index, uint8_t *data, uint16_t number_of_bytes);
+   VL53L1X_ERROR VL53L1X_I2CWrite(uint16_t index, uint8_t *data, uint16_t number_of_bytes);
+   VL53L1X_ERROR VL53L1X_I2CRead(uint16_t index, uint8_t *data, uint16_t number_of_bytes);
    VL53L1X_ERROR VL53L1X_GetTickCount(uint32_t *ptick_count_ms);
-   VL53L1X_ERROR VL53L1X_WaitUs(VL53L1X_Dev_t *pdev, int32_t wait_us);
-   VL53L1X_ERROR VL53L1X_WaitMs(VL53L1X_Dev_t *pdev, int32_t wait_ms);
+   VL53L1X_ERROR VL53L1X_WaitUs(int32_t wait_us);
+   VL53L1X_ERROR VL53L1X_WaitMs(int32_t wait_ms);
 
-   VL53L1X_ERROR VL53L1X_WaitValueMaskEx(VL53L1X_Dev_t *pdev, uint32_t timeout_ms, uint16_t index, uint8_t value, uint8_t mask, uint32_t poll_delay_ms);
-
-
-
-protected:
+   VL53L1X_ERROR VL53L1X_WaitValueMaskEx(uint32_t timeout_ms, uint16_t index, uint8_t value, uint8_t mask, uint32_t poll_delay_ms);
 
    /* IO Device */
-   TwoWire *dev_i2c;
+   esphome::i2c::I2CDevice *dev_i2c{nullptr};
    /* Digital out pin */
-   int gpio0;
-   /* Device data */
-   VL53L1X_Dev_t MyDevice;
-   VL53L1X_DEV Device;
+   esphome::GPIOPin *gpio0{nullptr};
 };
-
 
 #endif /* _VL53L1X_CLASS_H_ */

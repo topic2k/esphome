@@ -38,37 +38,29 @@
     @param irq_pin Optional specify pin attached to interrupt
 */
 /**************************************************************************/
-Adafruit_VL53L1X::Adafruit_VL53L1X(uint8_t shutdown_pin, uint8_t irq_pin)
-    : VL53L1X(NULL, irq_pin) {
-  _shutdown_pin = shutdown_pin;
-  _irq_pin = irq_pin;
-}
+Adafruit_VL53L1X::Adafruit_VL53L1X(GPIOPin *shutdown_pin, GPIOPin *irq_pin, I2CDevice *esph_i2c)
+    : VL53L1X(esph_i2c, irq_pin), _shutdown_pin(shutdown_pin), _esph_i2c(esph_i2c) { }
 
 /**************************************************************************/
 /*!
     @brief  Setups the I2C interface and hardware
     @param  i2c_addr Optional I2C address the sensor can be found on. Default is
    0x29
-    @param  theWire Optional The Wire bus object to use.
+    @param  theWire Required The Wire bus object to use.
     @param  debug Optional debug flag. If true, debug information will print out
    via Serial.print during setup. Defaults to false.
     @returns  True if device is set up, false on any failure
 */
 /**************************************************************************/
-bool Adafruit_VL53L1X::begin(uint8_t i2c_addr, TwoWire *theWire, bool debug) {
-  if (_shutdown_pin != -1) {
-    pinMode(_shutdown_pin, OUTPUT);
-    digitalWrite(_shutdown_pin, HIGH);
-    digitalWrite(_shutdown_pin, LOW);
+bool Adafruit_VL53L1X::begin(uint8_t i2c_addr, i2c::I2CDevice *theWire, bool debug) {
+  if (_shutdown_pin != nullptr) {
+    _shutdown_pin->pin_mode(gpio::FLAG_OUTPUT);
+    _shutdown_pin->digital_write(HIGH);
+    _shutdown_pin->digital_write(LOW);
     delay(5);
-    digitalWrite(_shutdown_pin, HIGH);
+    _shutdown_pin->digital_write(HIGH);
   }
   delay(5);
-
-  theWire->begin();
-
-  MyDevice.I2cHandle = theWire;
-  dev_i2c = theWire;
 
   vl_status = InitSensor(i2c_addr * 2);
   if (vl_status != VL53L1X_ERROR_NONE) {

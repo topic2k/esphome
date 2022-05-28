@@ -19,7 +19,8 @@
 #ifndef ADAFRUIT_VL53L1X_H
 #define ADAFRUIT_VL53L1X_H
 
-#include "Wire.h"
+#include "esphome/core/gpio.h"
+#include "esphome/components/i2c/i2c.h"
 #include "vl53l1x_class.h"
 
 #define VL53L1X_I2C_ADDR 0x29 ///< Default sensor I2C address
@@ -32,10 +33,9 @@
 /**************************************************************************/
 class Adafruit_VL53L1X : public VL53L1X {
 public:
-  Adafruit_VL53L1X(uint8_t shutdown_pin = -1, uint8_t irq_pin = -1);
+  Adafruit_VL53L1X(esphome::GPIOPin *hutdown_pin, esphome::GPIOPin *irq_pin, esphome::i2c::I2CDevice *esph_i2c);
 
-  bool begin(uint8_t i2c_addr = VL53L1X_I2C_ADDR, TwoWire *theWire = &Wire,
-             bool debug = false);
+  bool begin(uint8_t i2c_addr = VL53L1X_I2C_ADDR, esphome::i2c::I2CDevice *theWire = nullptr, bool debug = false);
   uint16_t sensorID(void);
 
   bool startRanging(void);
@@ -62,14 +62,10 @@ public:
   VL53L1X_ERROR vl_status; /**< VL53L1X API Error Status */
 
 private:
-  int8_t _irq_pin, _shutdown_pin;
-  /*
-  VL53L1_Dev_t               MyDevice;
-  VL53L1_Dev_t               *pMyDevice  = &MyDevice;
-  //VL53L1X_Version_t                   Version;
-  //VL53L1X_Version_t                   *pVersion   = &Version;
-  VL53L1_DeviceInfo_t        DeviceInfo;
-  */
+  esphome::GPIOPin *_irq_pin{nullptr};
+  esphome::GPIOPin *_shutdown_pin{nullptr};
+  esphome::i2c::I2CDevice *_esph_i2c;
+
 };
 
 #endif
