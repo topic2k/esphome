@@ -93,7 +93,7 @@ typedef int8_t VL53L1X_ERROR;
 #define VL53L1X_IDENTIFICATION__MODEL_ID 0x010F
 #define VL53L1X_ROI_CONFIG__MODE_ROI_CENTRE_SPAD 0x013E
 
-#define VL53L1X_DEFAULT_DEVICE_ADDRESS 0x52
+#define VL53L1X_DEFAULT_DEVICE_ADDRESS 0x29
 
 /****************************************
  * PRIVATE define do not edit
@@ -135,7 +135,7 @@ class VL53L1X : public i2c::I2CDevice, public RangeSensor, public VL53L1XErrorCo
   /* turns on the sensor */
   virtual void VL53L1X_On() {
     if (irq_pin_ != nullptr) {
-      irq_pin_->digital_write(HIGH);
+      irq_pin_->digital_write(true);
     }
     delay(10);
   }
@@ -147,7 +147,7 @@ class VL53L1X : public i2c::I2CDevice, public RangeSensor, public VL53L1XErrorCo
   /* turns off the sensor */
   virtual void VL53L1X_Off() {
     if (irq_pin_ != nullptr) {
-      irq_pin_->digital_write(LOW);
+      irq_pin_->digital_write(false);
     }
     delay(10);
   }
@@ -162,8 +162,10 @@ class VL53L1X : public i2c::I2CDevice, public RangeSensor, public VL53L1XErrorCo
     uint8_t sensorState = 0;
     VL53L1X_Off();
     VL53L1X_On();
-    status = VL53L1X_SetI2CAddress(address);
 
+    if (address != VL53L1X_DEFAULT_DEVICE_ADDRESS) {
+        status = VL53L1X_SetI2CAddress(address);
+    }
     while (!sensorState && !status) {
       status = VL53L1X_BootState(&sensorState);
         ESP_LOGE(TAG, "- Sensor, BootState status: %i", status);

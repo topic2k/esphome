@@ -47,8 +47,6 @@ namespace vl53l1x {
 #define MM_CONFIG__INNER_OFFSET_MM			0x0020
 #define MM_CONFIG__OUTER_OFFSET_MM 			0x0022
 
-//#define DEBUG_MODE
-
 
 //<editor-fold desc="const uint8_t VL51L1X_DEFAULT_CONFIGURATION[] = {">
 const uint8_t VL51L1X_DEFAULT_CONFIGURATION[] =
@@ -174,7 +172,7 @@ VL53L1X_ERROR VL53L1X::VL53L1X_SetI2CAddress(uint8_t new_address)
    VL53L1X_ERROR status = 0;
    ESP_LOGE(TAG, "- address_: %x", address_);
    ESP_LOGE(TAG, "- VL53L1X_SetI2CAddress: %x", new_address);
-   status = VL53L1X_WrByte(VL53L1X_I2C_SLAVE__DEVICE_ADDRESS, new_address >> 1);
+   status = VL53L1X_WrByte(VL53L1X_I2C_SLAVE__DEVICE_ADDRESS, new_address);
    ESP_LOGE(TAG, "- VL53L1X_SetI2CAddress, status: %i", status);
    set_i2c_address(new_address);
 

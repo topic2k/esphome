@@ -11,6 +11,7 @@
 
 namespace esphome {
 namespace vl53l1x {
+    uint16_t PAD_I2C_HV_EXTSUP_CONFIG = 0x002E;
 
 std::list<VL53L1XSensor *> VL53L1XSensor::vl53l1x_sensors; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 bool VL53L1XSensor::enable_pin_setup_complete = false; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
@@ -52,56 +53,54 @@ void VL53L1XSensor::setup() {
     this->irq_pin_->pin_mode(gpio::FLAG_OUTPUT);
   }
 
-  ESP_LOGE(TAG, "'%s' - address_: %x", this->name_.c_str(), address_);
   uint8_t address_to_set = address_;
   if (address_ != VL53L1X_I2C_ADDR) {
     set_i2c_address(VL53L1X_I2C_ADDR);
   }
-  ESP_LOGE(TAG, "'%s' - address_: %x", this->name_.c_str(), address_);
 
   if (!begin(address_to_set)) {
     ESP_LOGE(TAG, "'%s' - Sensor init failed", this->name_.c_str());
     this->mark_failed();
   }
-  //  if (this->io_2v8_) {
-  //    uint8_t val;
-  //    VL53L1X_Error status;
-  //    status = this->vl53l1x_rd_byte(this->PAD_I2C_HV_EXTSUP_CONFIG, &val);
-  //    if (status == this->VL53L1X_ERROR_NONE) {
-  //      val = (val & 0xfe) | 0x01;
-  //      this->write_byte(this->PAD_I2C_HV_EXTSUP_CONFIG, val);
-  //    }
-  //  }
-  //
-  //  this->vl53l1x_set_distance_mode(this->long_range_ ? 2 : 1);
-  //  // Valid timing budgets: 15, 20, 33, 50, 100, 200 and 500ms!
-  //  this->vl53l1x_set_timing_budget_in_ms(this->timing_budget_);
-  //
-  //  if (this->offset_ != 0) {
-  //    this->vl53l1x_set_offset(this->offset_);
-  //  }
-  //
-  //  if (!this->start_ranging()) {
-  //    ESP_LOGE(TAG, "'%s' - Couldn't start ranging. Error code %i", this->name_.c_str(), this->vl_status);
-  //    this->mark_failed();
-  //  }
+    if (this->io_2v8_) {
+      uint8_t val;
+      VL53L1X_Error status;
+      status = this->VL53L1X_RdByte(PAD_I2C_HV_EXTSUP_CONFIG, &val);
+      if (status == this->VL53L1X_ERROR_NONE) {
+        val = (val & 0xfe) | 0x01;
+        this->VL53L1X_WrByte(PAD_I2C_HV_EXTSUP_CONFIG, val);
+      }
+    }
+
+    this->VL53L1X_SetDistanceMode(this->long_range_ ? 2 : 1);
+    // Valid timing budgets: 15, 20, 33, 50, 100, 200 and 500ms!
+    this->VL53L1X_SetTimingBudgetInMs(this->timing_budget_);
+
+    if (this->offset_ != 0) {
+      this->VL53L1X_SetOffset(this->offset_);
+    }
+
+    if (!this->startRanging()) {
+      ESP_LOGE(TAG, "'%s' - Couldn't start ranging. Error code %i", this->name_.c_str(), this->vl_status);
+      this->mark_failed();
+    }
 }
 
 void VL53L1XSensor::update() {
-  int16_t distance = 0;
+  int16_t dstnc = 0;
 
-  //  if (this->data_ready()) {
-  //    // new measurement for the taking!
-  //    distance = this->distance();
-  //    if (distance == -1) {
-  //      // something went wrong!
-  //      ESP_LOGE(TAG, "Couldn't get distance. Error code %i", this->vl_status);
-  //      return;
-  //    }
-  //    // data is read out, time for another reading!
-  //    this->clear_interrupt();
-  //  }
-  publish_state(distance / 1000.0);  // convert from mm to m and publish the result
+    if (this->dataReady()) {
+      // new measurement for the taking!
+      dstnc = this->distance();
+      if (dstnc == -1) {
+        // something went wrong!
+        ESP_LOGE(TAG, "Couldn't get distance. Error code %i", this->vl_status);
+        return;
+      }
+      // data is read out, time for another reading!
+      this->clearInterrupt();
+    }
+  publish_state(dstnc / 1000.0);  // convert from mm to m and publish the result
 }
 
 // void VL53L1XSensor::loop() {
