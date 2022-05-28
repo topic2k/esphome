@@ -46,7 +46,7 @@
 #include "esphome/core/gpio.h"
 #include "esphome/components/i2c/i2c.h"
 #include "RangeSensor.h"
-//#include "vl53l1x_error_codes.h"
+#include "vl53l1x_error_codes.h"
 #include "Arduino.h"
 
 namespace esphome {
@@ -119,7 +119,7 @@ typedef struct {
 /* Classes -------------------------------------------------------------------*/
 /** Class representing a VL53L1X sensor component
  */
-class VL53L1X : public RangeSensor {
+class VL53L1X : public RangeSensor, public VL53L1XErrorCodes{
  public:
   /** Constructor
     * @param[in] i2c device I2C to be used for communication
