@@ -1,3 +1,4 @@
+#pragma once
 /*******************************************************************************
  Copyright Ã‚Â© 2018, STMicroelectronics International N.V.
  All rights reserved.
@@ -45,7 +46,7 @@
 #include "esphome/core/gpio.h"
 #include "esphome/components/i2c/i2c.h"
 #include "RangeSensor.h"
-#include "vl53l1x_error_codes.h"
+//#include "vl53l1x_error_codes.h"
 #include "Arduino.h"
 
 namespace esphome {
@@ -126,7 +127,7 @@ class VL53L1X : public RangeSensor {
    */
   VL53L1X(i2c::I2CDevice *i2c, GPIOPin *pin) : RangeSensor() {
     gpio0 = pin;
-    dev_i2c = i2c;
+    esph_i2c = i2c;
   }
 
   /** Destructor
@@ -527,7 +528,7 @@ class VL53L1X : public RangeSensor {
                                         uint32_t poll_delay_ms);
 
   /* IO Device */
-  i2c::I2CDevice *dev_i2c{nullptr};
+  i2c::I2CDevice *esph_i2c{nullptr};
   /* Digital out pin */
   GPIOPin *gpio0{nullptr};
 };

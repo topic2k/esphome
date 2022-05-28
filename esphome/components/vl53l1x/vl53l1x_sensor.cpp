@@ -1,3 +1,4 @@
+#pragma once
 /*
  * Most of the code in this integration is based on the Adafruit_VL53L1X library
  * by Adafruit Industries, which in turn is based on
@@ -24,10 +25,10 @@ void VL53L1XSensor::dump_config() {
   LOG_I2C_DEVICE(this);
   LOG_PIN("  Enable Pin: ", this->enable_pin_);
   LOG_PIN("  IRQ Pin: ", this->irq_pin_);
-  ESP_LOGCONFIG(TAG, "  Model 0x%X", this->sensor_id());
+//  ESP_LOGCONFIG(TAG, "  Model 0x%X", this->sensor_id());
   ESP_LOGCONFIG(TAG, "  io_2v8: %s", this->io_2v8_ ? "true" : "false");
   ESP_LOGCONFIG(TAG, "  long_range: %s", this->long_range_ ? "true" : "false");
-  ESP_LOGCONFIG(TAG, "  timing_budget: %i", this->timing_budget_);
+//  ESP_LOGCONFIG(TAG, "  timing_budget: %i", this->timing_budget_);
   ESP_LOGCONFIG(TAG, "  offset: %i", this->offset_);
 }
 

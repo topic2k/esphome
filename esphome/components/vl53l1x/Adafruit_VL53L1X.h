@@ -1,3 +1,4 @@
+#pragma once
 /*!
  * @file Adafruit_VL53L1X.h
 
@@ -26,8 +27,7 @@
 namespace esphome {
 namespace vl53l1x {
 
-
-#define VL53L1X_I2C_ADDR 0x29 ///< Default sensor I2C address
+    const uint8_t VL53L1X_I2C_ADDR = 0x29;              ///< Default sensor I2C address
 
 /**************************************************************************/
 /*!

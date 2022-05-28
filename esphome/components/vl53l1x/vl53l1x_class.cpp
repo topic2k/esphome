@@ -1,3 +1,4 @@
+#pragma once
 /**
  ******************************************************************************
  * @file    vl53l0x_class.cpp
@@ -1015,69 +1016,30 @@ VL53L1X_ERROR VL53L1X::VL53L1X_UpdateByte(uint16_t index, uint8_t AndData, uint8
 
 VL53L1X_ERROR VL53L1X::VL53L1X_I2CWrite(uint16_t RegisterAddr, uint8_t* pBuffer, uint16_t NumByteToWrite)
 {
-#ifdef DEBUG_MODE
-   Serial.print("Beginning transmission to ");
-   Serial.println(((DeviceAddr) >> 1) & 0x7F);
-#endif
-   dev_i2c->beginTransmission(((uint8_t)(((DeviceAddr) >> 1) & 0x7F)));
-#ifdef DEBUG_MODE
-   Serial.print("Writing port number ");
-   Serial.println(RegisterAddr);
-#endif
-   uint8_t buffer[2];
-   buffer[0]=(uint8_t) (RegisterAddr>>8);
-   buffer[1]=(uint8_t) (RegisterAddr&0xFF);
-   dev_i2c->write(buffer, 2);
-   for (uint16_t i = 0 ; i < NumByteToWrite ; i++)
-      dev_i2c->write(pBuffer[i]);
+    uint16_t idx;
+    uint8_t buffer[2 + NumByteToWrite];
 
-   dev_i2c->endTransmission(true);
-   return 0;
+    buffer[0]=(uint8_t) (RegisterAddr >> 8);
+    buffer[1]=(uint8_t) (RegisterAddr & 0xFF);
+    for (idx = 0; idx < NumByteToWrite; idx++) {
+        buffer[idx + 2] = pBuffer[idx];
+    }
+    this->esph_i2c->write(buffer, 2 + NumByteToWrite, true);
+    return 0;
 }
 
 VL53L1X_ERROR VL53L1X::VL53L1X_I2CRead(uint16_t RegisterAddr, uint8_t* pBuffer, uint16_t NumByteToRead)
 {
-   int status = 0;
-//Loop until the port is transmitted correctly
-   do
-   {
-#ifdef DEBUG_MODE
-      Serial.print("Beginning transmission to ");
-      Serial.println(((DeviceAddr) >> 1) & 0x7F);
-#endif
-      dev_i2c->beginTransmission(((uint8_t)(((DeviceAddr) >> 1) & 0x7F)));
-#ifdef DEBUG_MODE
-      Serial.print("Writing port number ");
-      Serial.println(RegisterAddr);
-#endif
-      uint8_t buffer[2];
-      buffer[0]=(uint8_t) (RegisterAddr>>8);
-      buffer[1]=(uint8_t) (RegisterAddr&0xFF);
-      dev_i2c->write(buffer, 2);
-      status = dev_i2c->endTransmission(false);
-//Fix for some STM32 boards
-//Reinitialize th i2c bus with the default parameters
-#ifdef ARDUINO_ARCH_STM32
-      if (status)
-      {
-         dev_i2c->end();
-         dev_i2c->begin();
-      }
-#endif
-//End of fix
-   }
-   while(status != 0);
+    int status = 0;
+    do {
+        uint8_t buffer[2];
+        buffer[0] = (uint8_t)(RegisterAddr >> 8);
+        buffer[1] = (uint8_t)(RegisterAddr & 0xFF);
+        status = this->esph_i2c->write(buffer, 2, false);
+    } while (status != 0);
 
-   dev_i2c->requestFrom(((uint8_t)(((DeviceAddr) >> 1) & 0x7F)), (byte) NumByteToRead);
-
-   int i=0;
-   while (dev_i2c->available())
-   {
-      pBuffer[i] = dev_i2c->read();
-      i++;
-   }
-
-   return 0;
+    this->esph_i2c->read(pBuffer, NumByteToRead);
+    return 0;
 }
 
 
