@@ -23,6 +23,10 @@
 #include "esphome/components/i2c/i2c.h"
 #include "vl53l1x_class.h"
 
+namespace esphome {
+namespace vl53l1x {
+
+
 #define VL53L1X_I2C_ADDR 0x29 ///< Default sensor I2C address
 
 /**************************************************************************/
@@ -33,9 +37,9 @@
 /**************************************************************************/
 class Adafruit_VL53L1X : public VL53L1X {
 public:
-  Adafruit_VL53L1X(GPIOPin *shutdown_pin, GPIOPin *irq_pin, I2CDevice *esph_i2c);
+  Adafruit_VL53L1X(GPIOPin *shutdown_pin, GPIOPin *irq_pin, i2c::I2CDevice *esph_i2c);
 
-  bool begin(uint8_t i2c_addr = VL53L1X_I2C_ADDR, I2CDevice *theWire = nullptr, bool debug = false);
+  bool begin(uint8_t i2c_addr = VL53L1X_I2C_ADDR, i2c::I2CDevice *theWire = nullptr, bool debug = false);
   uint16_t sensorID(void);
 
   bool startRanging(void);
@@ -64,8 +68,11 @@ public:
 private:
   GPIOPin *_irq_pin{nullptr};
   GPIOPin *_shutdown_pin{nullptr};
-  I2CDevice *_esph_i2c;
+  i2c::I2CDevice *_esph_i2c;
 
 };
+
+}  // namespace vl53l1x
+}  // namespace esphome
 
 #endif

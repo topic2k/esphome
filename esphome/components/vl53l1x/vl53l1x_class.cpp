@@ -40,6 +40,8 @@
 #include "Arduino.h"
 #include "vl53l1x_class.h"
 
+namespace esphome {
+namespace vl53l1x {
 
 #define ALGO__PART_TO_PART_RANGE_OFFSET_MM	0x001E
 #define MM_CONFIG__INNER_OFFSET_MM			0x0020
@@ -1175,3 +1177,6 @@ VL53L1X_ERROR VL53L1X::VL53L1X_WaitValueMaskEx(
 
    return status;
 }
+
+}  // namespace vl53l1x
+}  // namespace esphome

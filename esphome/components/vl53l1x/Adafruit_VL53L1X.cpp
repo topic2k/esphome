@@ -31,6 +31,9 @@
 
 #include "Adafruit_VL53L1X.h"
 
+namespace esphome {
+namespace vl53l1x {
+
 /**************************************************************************/
 /*!
     @brief  Create a new VL53L1X instance
@@ -250,3 +253,6 @@ Adafruit_VL53L1X::GetRangingMeasurementData(VL53L1_RangingMeasurementData_t
   return (Status == VL53L1_ERROR_NONE);
 }
 */
+
+}  // namespace vl53l1x
+}  // namespace esphome
