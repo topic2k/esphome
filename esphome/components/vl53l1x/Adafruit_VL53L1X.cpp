@@ -41,9 +41,7 @@ namespace vl53l1x {
     @param irq_pin Optional specify pin attached to interrupt
 */
 /**************************************************************************/
-Adafruit_VL53L1X::Adafruit_VL53L1X() {
-  ESP_LOGE(TAG, " - Adafruit_VL53L1X()");
-}
+Adafruit_VL53L1X::Adafruit_VL53L1X() { ESP_LOGE(TAG, " - Adafruit_VL53L1X()"); }
 
 /**************************************************************************/
 /*!
@@ -55,19 +53,19 @@ Adafruit_VL53L1X::Adafruit_VL53L1X() {
 /**************************************************************************/
 bool Adafruit_VL53L1X::begin(uint8_t i2c_addr) {
   if (enable_pin_ != nullptr) {
-    enable_pin_->digital_write(HIGH);
-    enable_pin_->digital_write(LOW);
+    enable_pin_->digital_write(true);
+    enable_pin_->digital_write(false);
     delay(5);
-    enable_pin_->digital_write(HIGH);
+    enable_pin_->digital_write(true);
   }
   delay(5);
 
-  vl_status = InitSensor(i2c_addr);
+  vl_status = init_sensor(i2c_addr);
   if (vl_status != VL53L1X_ERROR_NONE) {
     return false;
   }
 
-  if (sensorID() != 0xEACC) {
+  if (get_sensor_id() != 0xEACC) {
     return false;
   }
   return true;
@@ -79,26 +77,26 @@ bool Adafruit_VL53L1X::begin(uint8_t i2c_addr) {
     @returns The sensor ID.
 */
 /**************************************************************************/
-uint16_t Adafruit_VL53L1X::sensorID(void) {
+uint16_t Adafruit_VL53L1X::get_sensor_id(void) {
   uint16_t sensorID = 0;
-  vl_status = VL53L1X_GetSensorId(&sensorID);
+  vl_status = vl53l1x_get_sensor_id(&sensorID);
   return sensorID;
 }
 
 /**************************************************************************/
 /*!
-    @brief  Get the distance.
-    @returns The distance.
+    @brief  Get the get_distance.
+    @returns The get_distance.
 */
 /**************************************************************************/
-int16_t Adafruit_VL53L1X::distance(void) {
+int16_t Adafruit_VL53L1X::get_distance(void) {
   uint16_t distance;
 
-  vl_status = VL53L1X_GetDistance(&distance);
+  vl_status = vl53l1x_get_distance(&distance);
   if (vl_status != VL53L1X_ERROR_NONE) {
     return -1;
   }
-  return (int16_t)distance;
+  return (int16_t) distance;
 }
 
 /**************************************************************************/
@@ -107,8 +105,8 @@ int16_t Adafruit_VL53L1X::distance(void) {
     @returns True if successful, otherwise false.
 */
 /**************************************************************************/
-bool Adafruit_VL53L1X::clearInterrupt(void) {
-  vl_status = VL53L1X_ClearInterrupt();
+bool Adafruit_VL53L1X::clear_interrupt(void) {
+  vl_status = vl53l1x_clear_interrupt();
   return (vl_status == VL53L1X_ERROR_NONE);
 }
 
@@ -119,8 +117,8 @@ bool Adafruit_VL53L1X::clearInterrupt(void) {
     @returns True if successful, otherwise false.
 */
 /**************************************************************************/
-bool Adafruit_VL53L1X::setIntPolarity(bool polarity) {
-  vl_status = VL53L1X_SetInterruptPolarity(polarity);
+bool Adafruit_VL53L1X::set_int_polarity(bool polarity) {
+  vl_status = vl53l1x_set_interrupt_polarity(polarity);
   return (vl_status == VL53L1X_ERROR_NONE);
 }
 
@@ -130,10 +128,10 @@ bool Adafruit_VL53L1X::setIntPolarity(bool polarity) {
     @returns Polarity as a boolean.
 */
 /**************************************************************************/
-bool Adafruit_VL53L1X::getIntPolarity(void) {
+bool Adafruit_VL53L1X::get_int_polarity(void) {
   uint8_t x = 0;
-  vl_status = VL53L1X_GetInterruptPolarity(&x);
-  return (bool)x;
+  vl_status = vl53l1x_get_interrupt_polarity(&x);
+  return (bool) x;
 }
 
 /**************************************************************************/
@@ -142,8 +140,8 @@ bool Adafruit_VL53L1X::getIntPolarity(void) {
     @returns True if successful, otherwise false.
 */
 /**************************************************************************/
-bool Adafruit_VL53L1X::startRanging(void) {
-  vl_status = VL53L1X_StartRanging();
+bool Adafruit_VL53L1X::start_ranging(void) {
+  vl_status = vl53l1x_start_ranging();
   return (vl_status == VL53L1X_ERROR_NONE);
 }
 
@@ -153,8 +151,8 @@ bool Adafruit_VL53L1X::startRanging(void) {
     @returns True if successful, otherwise false.
 */
 /**************************************************************************/
-bool Adafruit_VL53L1X::stopRanging(void) {
-  vl_status = VL53L1X_StopRanging();
+bool Adafruit_VL53L1X::stop_ranging(void) {
+  vl_status = vl53l1x_stop_ranging();
   return (vl_status == VL53L1X_ERROR_NONE);
 }
 
@@ -164,10 +162,10 @@ bool Adafruit_VL53L1X::stopRanging(void) {
     @returns True if new data available, otherwise false.
 */
 /**************************************************************************/
-bool Adafruit_VL53L1X::dataReady(void) {
+bool Adafruit_VL53L1X::is_data_ready(void) {
   uint8_t x = 0;
-  vl_status = VL53L1X_CheckForDataReady(&x);
-  return (bool)x;
+  vl_status = vl53l1x_check_for_data_ready(&x);
+  return (bool) x;
 }
 
 /**************************************************************************/
@@ -177,8 +175,8 @@ bool Adafruit_VL53L1X::dataReady(void) {
     @returns True if successful, otherwise false.
 */
 /**************************************************************************/
-bool Adafruit_VL53L1X::setTimingBudget(uint16_t ms) {
-  vl_status = VL53L1X_SetTimingBudgetInMs(ms);
+bool Adafruit_VL53L1X::set_timing_budget_ms(uint16_t ms) {
+  vl_status = vl53l1x_set_timing_budget_in_ms(ms);
   return (vl_status == VL53L1X_ERROR_NONE);
 }
 
@@ -188,25 +186,23 @@ bool Adafruit_VL53L1X::setTimingBudget(uint16_t ms) {
     @returns Timing budget in milliseconds.
 */
 /**************************************************************************/
-uint16_t Adafruit_VL53L1X::getTimingBudget(void) {
+uint16_t Adafruit_VL53L1X::get_timing_budget(void) {
   uint16_t ms = 0;
 
-  vl_status = VL53L1X_GetTimingBudgetInMs(&ms);
+  vl_status = vl53l1x_get_timing_budget_in_ms(&ms);
   if (vl_status == VL53L1X_ERROR_NONE) {
     return ms;
   }
   return 0;
 }
 
+bool Adafruit_VL53L1X::set_distance_mode(uint16_t mode) {
+  VL53L1X_Error status;
+  status = this->vl53l1x_set_distance_mode(mode);
+  return (status == VL53L1X::VL53L1X_ERROR_NONE);
+}
+
 /*
-
-}
-
-boolean Adafruit_VL53L1X::SetDistanceMode(VL53L1_DistanceModes mode) {
-  Status = VL53L1_SetDistanceMode(pMyDevice, mode );
-  return (Status == VL53L1_ERROR_NONE);
-}
-
 boolean
 Adafruit_VL53L1X::GetRangingMeasurementData(VL53L1_RangingMeasurementData_t
 *ranging) { Status = VL53L1_GetRangingMeasurementData(pMyDevice, ranging);

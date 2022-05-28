@@ -72,6 +72,8 @@
 namespace esphome {
 namespace vl53l1x {
 
+using VL53L1X_Error = int8_t;
+
 /****************************************
  * PRIVATE define do not edit
  ****************************************/
@@ -81,8 +83,6 @@ class VL53L1XErrorCodes {
  *  The following DEFINE are used to identify the PAL ERROR
  *  @{
    */
-
-  typedef int8_t VL53L1X_Error;
 
   VL53L1X_Error VL53L1X_ERROR_NONE = 0;
   VL53L1X_Error VL53L1X_ERROR_CALIBRATION_WARNING = -1;

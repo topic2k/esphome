@@ -17,17 +17,12 @@
   BSD license, all text above must be included in any redistribution
  ****************************************************/
 
-#ifndef ADAFRUIT_VL53L1X_H
-#define ADAFRUIT_VL53L1X_H
-
 #include "esphome/core/gpio.h"
 #include "esphome/components/i2c/i2c.h"
 #include "vl53l1x_class.h"
 
 namespace esphome {
 namespace vl53l1x {
-
-    const uint8_t VL53L1X_I2C_ADDR = 0x29;              ///< Default sensor I2C address
 
 /**************************************************************************/
 /*!
@@ -36,38 +31,33 @@ namespace vl53l1x {
 */
 /**************************************************************************/
 class Adafruit_VL53L1X : public VL53L1X {
-public:
+ public:
   Adafruit_VL53L1X();
 
-  bool begin(uint8_t i2c_addr = VL53L1X_I2C_ADDR);
-  uint16_t sensorID(void);
+  bool begin(uint8_t i2c_addr = VL53L1X::VL53L1X_DEFAULT_DEVICE_ADDRESS);
+  uint16_t get_sensor_id(void);
 
-  bool startRanging(void);
-  bool stopRanging(void);
-  bool setTimingBudget(uint16_t ms);
-  uint16_t getTimingBudget(void);
+  bool start_ranging(void);
+  bool stop_ranging(void);
+  bool set_timing_budget_ms(uint16_t ms);
+  uint16_t get_timing_budget(void);
 
-  bool dataReady(void);
-  int16_t distance(void);
+  bool is_data_ready(void);
+  int16_t get_distance(void);
 
-  bool clearInterrupt(void);
-  bool setIntPolarity(bool polarity);
-  bool getIntPolarity(void);
+  bool clear_interrupt(void);
+  bool set_int_polarity(bool polarity);
+  bool get_int_polarity(void);
 
+  bool set_distance_mode(uint16_t mode);
   /*
-  boolean SetDistanceMode(VL53L1_DistanceModes mode);
-  boolean SetMeasurementTimingBudgetMicroSeconds(uint32_t budget);
-  boolean SetInterMeasurementPeriodMilliSeconds(uint32_t period);
-  boolean StartMeasurement(void);
-  boolean WaitMeasurementDataReady(void);
-  boolean GetRangingMeasurementData(VL53L1_RangingMeasurementData_t *ranging);
-  */
-
-  VL53L1X_ERROR vl_status; /**< VL53L1X API Error Status */
-
+    boolean SetMeasurementTimingBudgetMicroSeconds(uint32_t budget);
+    boolean SetInterMeasurementPeriodMilliSeconds(uint32_t period);
+    boolean StartMeasurement(void);
+    boolean WaitMeasurementDataReady(void);
+    boolean GetRangingMeasurementData(VL53L1_RangingMeasurementData_t *ranging);
+    */
 };
 
 }  // namespace vl53l1x
 }  // namespace esphome
-
-#endif
