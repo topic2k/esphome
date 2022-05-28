@@ -18,8 +18,6 @@
 namespace esphome {
 namespace vl53l1x {
 
-static const char *const TAG = "vl53l1x";
-
 class VL53L1XSensor : public sensor::Sensor, public PollingComponent, public Adafruit_VL53L1X {
  public:
   VL53L1XSensor();
@@ -44,8 +42,6 @@ class VL53L1XSensor : public sensor::Sensor, public PollingComponent, public Ada
   static bool enable_pin_setup_complete;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
   /* esphome configuration variables */
-  GPIOPin *enable_pin_{nullptr};
-  GPIOPin *irq_pin_{nullptr};
   bool io_2v8_ = false;
   bool long_range_ = true;
   uint16_t timing_budget_ = 100;

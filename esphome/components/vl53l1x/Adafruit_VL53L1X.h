@@ -65,10 +65,6 @@ public:
 
   VL53L1X_ERROR vl_status; /**< VL53L1X API Error Status */
 
-private:
-  GPIOPin *_irq_pin{nullptr};
-  GPIOPin *_shutdown_pin{nullptr};
-
 };
 
 }  // namespace vl53l1x

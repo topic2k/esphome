@@ -53,13 +53,12 @@ void VL53L1XSensor::setup() {
   }
 
   ESP_LOGE(TAG, "'%s' - address_: %x", this->name_.c_str(), address_);
-  return;
-
   uint8_t address_to_set = address_;
   if (address_ != VL53L1X_I2C_ADDR) {
-    VL53L1X_SetI2CAddress(VL53L1X_I2C_ADDR);
+    set_i2c_address(VL53L1X_I2C_ADDR);
   }
-  //
+  ESP_LOGE(TAG, "'%s' - address_: %x", this->name_.c_str(), address_);
+
   if (!begin(address_to_set)) {
     ESP_LOGE(TAG, "'%s' - Sensor init failed", this->name_.c_str());
     this->mark_failed();

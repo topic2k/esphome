@@ -54,12 +54,11 @@ Adafruit_VL53L1X::Adafruit_VL53L1X() {
 */
 /**************************************************************************/
 bool Adafruit_VL53L1X::begin(uint8_t i2c_addr) {
-  if (_shutdown_pin != nullptr) {
-    _shutdown_pin->pin_mode(gpio::FLAG_OUTPUT);
-    _shutdown_pin->digital_write(HIGH);
-    _shutdown_pin->digital_write(LOW);
+  if (enable_pin_ != nullptr) {
+    enable_pin_->digital_write(HIGH);
+    enable_pin_->digital_write(LOW);
     delay(5);
-    _shutdown_pin->digital_write(HIGH);
+    enable_pin_->digital_write(HIGH);
   }
   delay(5);
 

@@ -31,13 +31,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include <list>
 
-#include "esphome/core/hal.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/i2c/i2c.h"
 #include "esphome/core/hal.h"
 #include "esphome/core/gpio.h"
 #include "esphome/core/log.h"
-#include "esphome/components/i2c/i2c.h"
 #include "RangeSensor.h"
 #include "vl53l1x_error_codes.h"
 #include "Arduino.h"
@@ -45,7 +43,7 @@
 namespace esphome {
 namespace vl53l1x {
 
-static const char *const TAG = "vl53l1x_class";
+static const char *const TAG = "vl53l1x";
 
 #define VL53L1X_IMPLEMENTATION_VER_MAJOR 1
 #define VL53L1X_IMPLEMENTATION_VER_MINOR 0
@@ -128,22 +126,6 @@ class VL53L1X : public i2c::I2CDevice, public RangeSensor, public VL53L1XErrorCo
   /* warning: VL53L1X class inherits from GenericSensor, RangeSensor and LightSensor, that haven`t a destructor.
      The warning should request to introduce a virtual destructor to make sure to delete the object */
 
-  virtual int begin() {
-    ESP_LOGE(TAG, " - class.begin()");
-    if (gpio0 != nullptr) {
-      gpio0->pin_mode(gpio::FLAG_OUTPUT);
-    }
-    return 0;
-  }
-
-  virtual int end() {
-    ESP_LOGE(TAG, " - class.end()");
-    if (gpio0 != nullptr) {
-      gpio0->pin_mode(gpio::FLAG_INPUT);
-    }
-    return 0;
-  }
-
   /*** Interface Methods ***/
   /*** High level API ***/
   /**
@@ -152,8 +134,8 @@ class VL53L1X : public i2c::I2CDevice, public RangeSensor, public VL53L1XErrorCo
    */
   /* turns on the sensor */
   virtual void VL53L1X_On() {
-    if (gpio0 != nullptr) {
-      gpio0->digital_write(HIGH);
+    if (irq_pin_ != nullptr) {
+      irq_pin_->digital_write(HIGH);
     }
     delay(10);
   }
@@ -164,8 +146,8 @@ class VL53L1X : public i2c::I2CDevice, public RangeSensor, public VL53L1XErrorCo
    */
   /* turns off the sensor */
   virtual void VL53L1X_Off() {
-    if (gpio0 != nullptr) {
-      gpio0->digital_write(LOW);
+    if (irq_pin_ != nullptr) {
+      irq_pin_->digital_write(LOW);
     }
     delay(10);
   }
@@ -510,8 +492,10 @@ class VL53L1X : public i2c::I2CDevice, public RangeSensor, public VL53L1XErrorCo
   VL53L1X_ERROR VL53L1X_WaitValueMaskEx(uint32_t timeout_ms, uint16_t index, uint8_t value, uint8_t mask,
                                         uint32_t poll_delay_ms);
 
-  /* Digital out pin */
-  GPIOPin *gpio0{nullptr};
+ protected:
+  GPIOPin *irq_pin_{nullptr};
+  GPIOPin *enable_pin_{nullptr};
+
 };
 
 }  // namespace vl53l1x
