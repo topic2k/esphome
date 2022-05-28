@@ -14,7 +14,7 @@ namespace esphome {
 namespace vl53l1x {
 
 std::list<VL53L1XSensor *> VL53L1XSensor::vl53l1x_sensors; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-bool enable_pin_setup_complete = false; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+bool VL53L1XSensor::enable_pin_setup_complete = false; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 VL53L1XSensor::VL53L1XSensor() { VL53L1XSensor::vl53l1x_sensors.push_back(this); }
 

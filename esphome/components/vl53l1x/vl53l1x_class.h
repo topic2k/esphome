@@ -188,17 +188,6 @@ class VL53L1X : public RangeSensor, public VL53L1XErrorCodes{
     VL53L1X_On();
     status = VL53L1X_SetI2CAddress(address);
 
-#ifdef DEBUG_MODE
-    uint8_t byteData;
-    uint16_t wordData;
-    status = VL53L1X_RdByte(0x010F, &byteData);
-    Serial.println("VL53L1X Model_ID: " + String(byteData));
-    status = VL53L1X_RdByte(0x0110, &byteData);
-    Serial.println("VL53L1X Module_Type: " + String(byteData));
-    status = VL53L1X_RdWord(0x010F, &wordData);
-    Serial.println("VL53L1X: " + String(wordData));
-#endif
-
     while (!sensorState && !status) {
       status = VL53L1X_BootState(&sensorState);
       delay(2);

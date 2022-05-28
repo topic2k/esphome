@@ -68,7 +68,6 @@ public:
 private:
   GPIOPin *_irq_pin{nullptr};
   GPIOPin *_shutdown_pin{nullptr};
-  i2c::I2CDevice *_esph_i2c;
 
 };
 

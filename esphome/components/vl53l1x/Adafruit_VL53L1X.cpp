@@ -43,7 +43,7 @@ namespace vl53l1x {
 */
 /**************************************************************************/
 Adafruit_VL53L1X::Adafruit_VL53L1X(GPIOPin *shutdown_pin, GPIOPin *irq_pin, i2c::I2CDevice *esph_i2c)
-    : VL53L1X(esph_i2c, irq_pin), _shutdown_pin(shutdown_pin), _esph_i2c(esph_i2c) { }
+    : VL53L1X(esph_i2c, irq_pin), _shutdown_pin(shutdown_pin) { }
 
 /**************************************************************************/
 /*!
@@ -63,7 +63,7 @@ bool Adafruit_VL53L1X::begin(uint8_t i2c_addr) {
   }
   delay(5);
 
-  vl_status = InitSensor(i2c_addr * 2);
+  vl_status = InitSensor(i2c_addr);
   if (vl_status != VL53L1X_ERROR_NONE) {
     return false;
   }
