@@ -13,6 +13,7 @@
 #include "esphome/core/hal.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/i2c/i2c.h"
+#include "Adafruit_VL53L1X.h"
 
 namespace esphome {
 namespace vl53l1x {
@@ -50,6 +51,7 @@ class VL53L1XSensor : public sensor::Sensor, public PollingComponent, public i2c
   bool long_range_ = true;
   uint16_t timing_budget_ = 100;
   int16_t offset_ = 0;
+  Adafruit_VL53L1X tof_device_ = Adafruit_VL53L1X(nullptr, nullptr, nullptr);
 };
 
 }  // namespace vl53l1x

@@ -50,13 +50,10 @@ Adafruit_VL53L1X::Adafruit_VL53L1X(GPIOPin *shutdown_pin, GPIOPin *irq_pin, i2c:
     @brief  Setups the I2C interface and hardware
     @param  i2c_addr Optional I2C address the sensor can be found on. Default is
    0x29
-    @param  theWire Required The Wire bus object to use.
-    @param  debug Optional debug flag. If true, debug information will print out
-   via Serial.print during setup. Defaults to false.
     @returns  True if device is set up, false on any failure
 */
 /**************************************************************************/
-bool Adafruit_VL53L1X::begin(uint8_t i2c_addr, i2c::I2CDevice *theWire, bool debug) {
+bool Adafruit_VL53L1X::begin(uint8_t i2c_addr) {
   if (_shutdown_pin != nullptr) {
     _shutdown_pin->pin_mode(gpio::FLAG_OUTPUT);
     _shutdown_pin->digital_write(HIGH);
@@ -74,43 +71,6 @@ bool Adafruit_VL53L1X::begin(uint8_t i2c_addr, i2c::I2CDevice *theWire, bool deb
   if (sensorID() != 0xEACC) {
     return false;
   }
-
-  /*
-  Status = VL53L1_software_reset(pMyDevice);
-  if (Status != VL53L1_ERROR_NONE) return false;
-
-  // from Nucleo main.c
-  Status = VL53L1_WaitDeviceBooted(pMyDevice);
-  if (Status != VL53L1_ERROR_NONE) return false;
-
-  if (debug)
-    Serial.println("DataInit");
-  Status = VL53L1_DataInit(pMyDevice);         // Data initialization
-  if (Status != VL53L1_ERROR_NONE) return false;
-
-  if (debug)
-    Serial.println("StaticInit");
-  Status = VL53L1_StaticInit(pMyDevice);
-  if (Status != VL53L1_ERROR_NONE) return false;
-
-  Status = VL53L1_GetDeviceInfo(pMyDevice, &DeviceInfo );
-  if (Status != VL53L1_ERROR_NONE) return false;
-  if (debug) {
-    Serial.println( F( "VL53L1X Info:" ) );
-    Serial.print( F( "Device Name: ")  ); Serial.print( DeviceInfo.Name );
-    Serial.print( F( ", Type: " ) ); Serial.print( DeviceInfo.Type );
-    Serial.print( F( ", ID: " ) ); Serial.println( DeviceInfo.ProductId );
-
-    Serial.print( F( "Rev Major: " ) ); Serial.print(
-  DeviceInfo.ProductRevisionMajor ); Serial.print( F( ", Minor: " ) );
-  Serial.println( DeviceInfo.ProductRevisionMinor );
-  }
-
-  if (! SetDistanceMode(VL53L1_DISTANCEMODE_LONG)) return false;
-  if (! SetMeasurementTimingBudgetMicroSeconds(50000)) return false;
-  if (! SetInterMeasurementPeriodMilliSeconds(50)) return false;
-
-  */
   return true;
 }
 

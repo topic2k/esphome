@@ -39,7 +39,7 @@ class Adafruit_VL53L1X : public VL53L1X {
 public:
   Adafruit_VL53L1X(GPIOPin *shutdown_pin, GPIOPin *irq_pin, i2c::I2CDevice *esph_i2c);
 
-  bool begin(uint8_t i2c_addr = VL53L1X_I2C_ADDR, i2c::I2CDevice *theWire = nullptr, bool debug = false);
+  bool begin(uint8_t i2c_addr = VL53L1X_I2C_ADDR);
   uint16_t sensorID(void);
 
   bool startRanging(void);

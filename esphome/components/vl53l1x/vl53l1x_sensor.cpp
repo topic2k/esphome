@@ -9,13 +9,12 @@
  */
 
 #include "vl53l1x_sensor.h"
-#include "Adafruit_VL53L1X.h"
 
 namespace esphome {
 namespace vl53l1x {
 
-std::list<VL53L1XSensor *> VL53L1XSensor::vl53l1x_sensors;
-bool VL53L1XSensor::enable_pin_setup_complete = false;
+std::list<VL53L1XSensor *> VL53L1XSensor::vl53l1x_sensors; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+bool enable_pin_setup_complete = false; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 VL53L1XSensor::VL53L1XSensor() { VL53L1XSensor::vl53l1x_sensors.push_back(this); }
 
@@ -33,33 +32,31 @@ void VL53L1XSensor::dump_config() {
 }
 
 void VL53L1XSensor::setup() {
-  Adafruit_VL53L1X tof_device = Adafruit_VL53L1X(this->enable_pin_, this->irq_pin_, this);
+  if (!esphome::vl53l1x::VL53L1XSensor::enable_pin_setup_complete) {
+    for (auto &vl53_sensor : vl53l1x_sensors) {
+      if (vl53_sensor->enable_pin_ != nullptr) {
+        // Set enable pin as OUTPUT and disable the enable pin to force vl53 to HW Standby mode
+        vl53_sensor->enable_pin_->setup();
+        vl53_sensor->enable_pin_->pin_mode(gpio::FLAG_OUTPUT);
+        vl53_sensor->enable_pin_->digital_write(false);
+      }
+    }
+    esphome::vl53l1x::VL53L1XSensor::enable_pin_setup_complete = true;
+  }
 
-  //  if (!esphome::vl53l1x::VL53L1XSensor::enable_pin_setup_complete) {
-  //    for (auto &vl53_sensor : vl53l1x_sensors) {
-  //      if (vl53_sensor->enable_pin_ != nullptr) {
-  //        // Set enable pin as OUTPUT and disable the enable pin to force vl53 to HW Standby mode
-  //        vl53_sensor->enable_pin_->setup();
-  //        vl53_sensor->enable_pin_->digital_write(false);
-  //      }
-  //    }
-  //    esphome::vl53l1x::VL53L1XSensor::enable_pin_setup_complete = true;
-  //  }
-  //
-  //  if (this->enable_pin_ != nullptr) {
-  //    enable_pin_->pin_mode(gpio::FLAG_OUTPUT);
-  //  }
-  //  if (this->irq_pin_ != nullptr) {
-  //    irq_pin_->pin_mode(gpio::FLAG_OUTPUT);
-  //  }
-  //
-  //  uint8_t address_to_set = address_;
-  //  set_i2c_address(this->VL53L1X_I2C_ADDR);
-  //
-  //  if (!this->begin(address_to_set)) {
-  //    ESP_LOGE(TAG, "'%s' - Sensor init failed", this->name_.c_str());
-  //    this->mark_failed();
-  //  }
+  if (this->irq_pin_ != nullptr) {
+    this->irq_pin_->setup();
+    this->irq_pin_->pin_mode(gpio::FLAG_OUTPUT);
+  }
+  tof_device_ = Adafruit_VL53L1X(this->enable_pin_, this->irq_pin_, this);
+
+  uint8_t address_to_set = address_;
+  tof_device_.VL53L1X_SetI2CAddress(VL53L1X_I2C_ADDR);
+
+  if (!this->tof_device_.begin(address_to_set)) {
+    ESP_LOGE(TAG, "'%s' - Sensor init failed", this->name_.c_str());
+    this->mark_failed();
+  }
   //
   //  if (this->io_2v8_) {
   //    uint8_t val;
