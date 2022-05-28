@@ -63,7 +63,6 @@ void VL53L1XSensor::setup() {
     ESP_LOGE(TAG, "'%s' - Sensor init failed", this->name_.c_str());
     this->mark_failed();
   }
-//
   //  if (this->io_2v8_) {
   //    uint8_t val;
   //    VL53L1X_Error status;

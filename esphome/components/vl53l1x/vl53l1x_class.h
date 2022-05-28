@@ -166,6 +166,7 @@ class VL53L1X : public i2c::I2CDevice, public RangeSensor, public VL53L1XErrorCo
 
     while (!sensorState && !status) {
       status = VL53L1X_BootState(&sensorState);
+        ESP_LOGE(TAG, "- Sensor, BootState status: %i", status);
       delay(2);
     }
     if (!status) {

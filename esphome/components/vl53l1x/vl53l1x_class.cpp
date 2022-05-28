@@ -172,15 +172,18 @@ VL53L1X_ERROR VL53L1X::VL53L1X_GetSWVersion(VL53L1X_Version_t *pVersion)
 VL53L1X_ERROR VL53L1X::VL53L1X_SetI2CAddress(uint8_t new_address)
 {
    VL53L1X_ERROR status = 0;
-
+   ESP_LOGE(TAG, "- address_: %x", address_);
+   ESP_LOGE(TAG, "- VL53L1X_SetI2CAddress: %x", new_address);
    status = VL53L1X_WrByte(VL53L1X_I2C_SLAVE__DEVICE_ADDRESS, new_address >> 1);
-   this->set_i2c_address(new_address);
+   ESP_LOGE(TAG, "- VL53L1X_SetI2CAddress, status: %i", status);
+   set_i2c_address(new_address);
 
    return status;
 }
 
 VL53L1X_ERROR VL53L1X::VL53L1X_SensorInit()
 {
+    ESP_LOGE(TAG, "- VL53L1X_SensorInit");
    VL53L1X_ERROR status = 0;
    uint8_t Addr = 0x00, tmp=0;
 
@@ -204,6 +207,7 @@ VL53L1X_ERROR VL53L1X::VL53L1X_SensorInit()
 
 VL53L1X_ERROR VL53L1X::VL53L1X_ClearInterrupt()
 {
+    ESP_LOGE(TAG, "- VL53L1X_ClearInterrupt");
    VL53L1X_ERROR status = 0;
 
    status = VL53L1X_WrByte(SYSTEM__INTERRUPT_CLEAR, 0x01);
