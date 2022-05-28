@@ -1,4 +1,3 @@
-#pragma once
 /*
  * Most of the code in this integration is based on the Adafruit_VL53L1X library
  * by Adafruit Industries, which in turn is based on
@@ -16,7 +15,9 @@ namespace vl53l1x {
 std::list<VL53L1XSensor *> VL53L1XSensor::vl53l1x_sensors; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 bool VL53L1XSensor::enable_pin_setup_complete = false; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
-VL53L1XSensor::VL53L1XSensor() { VL53L1XSensor::vl53l1x_sensors.push_back(this); }
+VL53L1XSensor::VL53L1XSensor(GPIOPin *shutdownPin, GPIOPin *irqPin, uint8_t i2CAdr)
+    : Adafruit_VL53L1X(shutdownPin, irqPin, i2CAdr) { VL53L1XSensor::vl53l1x_sensors.push_back(this); }
+
 
 void VL53L1XSensor::dump_config() {
   LOG_SENSOR("", "VL53L1X", this);
@@ -50,20 +51,17 @@ void VL53L1XSensor::setup() {
   }
 
   ESP_LOGE(TAG, "'%s' - address_: %x", this->name_.c_str(), address_);
-  ESP_LOGE(TAG, "'%s' - sda_pin_: %x", this->name_.c_str(), bus_->sda_pin_);
-  ESP_LOGE(TAG, "'%s' - scl_pin_: %x", this->name_.c_str(), scl_pin_);
-  ESP_LOGE(TAG, "'%s' - frequency_: %x", this->name_.c_str(), frequency_);
   return;
-  tof_device_ = Adafruit_VL53L1X(this->enable_pin_, this->irq_pin_, address_);
+  // tof_device_ = Adafruit_VL53L1X(this->enable_pin_, this->irq_pin_, address_);
 
   uint8_t address_to_set = address_;
-  tof_device_.VL53L1X_SetI2CAddress(VL53L1X_I2C_ADDR);
-
-  if (!this->tof_device_.begin(address_to_set)) {
-    ESP_LOGE(TAG, "'%s' - Sensor init failed", this->name_.c_str());
-    this->mark_failed();
-  }
-  //
+//  tof_device_.VL53L1X_SetI2CAddress(VL53L1X_I2C_ADDR);
+//
+//  if (!this->tof_device_.begin(address_to_set)) {
+//    ESP_LOGE(TAG, "'%s' - Sensor init failed", this->name_.c_str());
+//    this->mark_failed();
+//  }
+//
   //  if (this->io_2v8_) {
   //    uint8_t val;
   //    VL53L1X_Error status;

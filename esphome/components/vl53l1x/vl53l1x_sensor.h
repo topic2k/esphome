@@ -20,10 +20,9 @@ namespace vl53l1x {
 
 static const char *const TAG = "vl53l1x";
 
-class VL53L1XSensor : public sensor::Sensor, public PollingComponent, public i2c::I2CDevice {
+class VL53L1XSensor : public sensor::Sensor, public PollingComponent, public Adafruit_VL53L1X {
  public:
-
-  VL53L1XSensor();
+  VL53L1XSensor(GPIOPin *shutdownPin, GPIOPin *irqPin, uint8_t i2CAdr);
   void setup() override;
   void dump_config() override;
   float get_setup_priority() const override { return setup_priority::DATA; }
@@ -51,7 +50,7 @@ class VL53L1XSensor : public sensor::Sensor, public PollingComponent, public i2c
   bool long_range_ = true;
   uint16_t timing_budget_ = 100;
   int16_t offset_ = 0;
-  Adafruit_VL53L1X tof_device_ = Adafruit_VL53L1X(nullptr, nullptr, nullptr);
+//  Adafruit_VL53L1X tof_device_ = Adafruit_VL53L1X(nullptr, nullptr, nullptr);
 };
 
 }  // namespace vl53l1x

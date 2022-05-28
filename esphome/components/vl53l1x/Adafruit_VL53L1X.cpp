@@ -1,4 +1,3 @@
-#pragma once
 /*!
  * @file Adafruit_VL53L1X.cpp
  *

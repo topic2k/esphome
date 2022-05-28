@@ -105,7 +105,7 @@ typedef struct {
 /* Classes -------------------------------------------------------------------*/
 /** Class representing a VL53L1X sensor component
  */
-class VL53L1X : public RangeSensor, public VL53L1XErrorCodes, public i2c::I2CDevice {
+class VL53L1X : public i2c::I2CDevice, public RangeSensor, public VL53L1XErrorCodes {
  public:
   /** Constructor
     * @param[in] i2c device I2C to be used for communication
@@ -142,7 +142,7 @@ class VL53L1X : public RangeSensor, public VL53L1XErrorCodes, public i2c::I2CDev
     * @return      void
    */
   /* turns on the sensor */
-  virtual void VL53L1X_On(void) {
+  virtual void VL53L1X_On() {
     if (gpio0 != nullptr) {
       gpio0->digital_write(HIGH);
     }
@@ -154,7 +154,7 @@ class VL53L1X : public RangeSensor, public VL53L1XErrorCodes, public i2c::I2CDev
     * @return      void
    */
   /* turns off the sensor */
-  virtual void VL53L1X_Off(void) {
+  virtual void VL53L1X_Off() {
     if (gpio0 != nullptr) {
       gpio0->digital_write(LOW);
     }

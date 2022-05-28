@@ -1,4 +1,3 @@
-#pragma once
 /**
  ******************************************************************************
  * @file    vl53l0x_class.cpp
@@ -169,7 +168,7 @@ VL53L1X_ERROR VL53L1X::VL53L1X_SetI2CAddress(uint8_t new_address)
    VL53L1X_ERROR status = 0;
 
    status = VL53L1X_WrByte(VL53L1X_I2C_SLAVE__DEVICE_ADDRESS, new_address >> 1);
-   this->esph_i2c->set_i2c_address(new_address);
+   this->set_i2c_address(new_address);
 
    return status;
 }
@@ -261,10 +260,11 @@ VL53L1X_ERROR VL53L1X::VL53L1X_CheckForDataReady(uint8_t *isDataReady)
    /* Read in the register to check if a new value is available */
    if (status == 0)
    {
-      if ((Temp & 1) == IntPol)
+      if ((Temp & 1) == IntPol) {
          *isDataReady = 1;
-      else
-         *isDataReady = 0;
+      } else {
+        *isDataReady = 0;
+      }
    }
    return status;
 }
