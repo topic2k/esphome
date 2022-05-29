@@ -66,6 +66,7 @@ class VL53L1X : public i2c::I2CDevice, public VL53L1XErrorCodes {  // NOLINT(cpp
   static const uint16_t ALGO_PART_TO_PART_RANGE_OFFSET_MM = 0x001E;
   static const uint16_t MM_CONFIG_INNER_OFFSET_MM = 0x0020;
   static const uint16_t MM_CONFIG_OUTER_OFFSET_MM = 0x0022;
+  static const uint16_t PAD_I2C_HV_EXTSUP_CONFIG = 0x002E;
   static const uint16_t GPIO_HV_MUX_CTRL = 0x0030;
   static const uint16_t GPIO_TIO_HV_STATUS = 0x0031;
   static const uint16_t SYSTEM_INTERRUPT_CONFIG_GPIO = 0x0046;

@@ -11,7 +11,6 @@
 
 namespace esphome {
 namespace vl53l1x {
-uint16_t PAD_I2C_HV_EXTSUP_CONFIG = 0x002E;
 
 std::list<VL53L1XSensor *>
     VL53L1XSensor::vl53l1x_sensors;                     // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
@@ -80,7 +79,7 @@ void VL53L1XSensor::setup() {
     this->vl53l1x_set_offset(this->offset_);
   }
 
-  if (!this->vl53l1x_start_ranging()) {
+  if (!this->start_ranging()) {
     ESP_LOGE(TAG, "'%s' - Couldn't start ranging. Error code %i", this->name_.c_str(), this->vl_status);
     this->mark_failed();
   }
