@@ -15,14 +15,17 @@
 namespace esphome {
 namespace vl53l1x {
 
-class VL53L1XSensor : public sensor::Sensor, public PollingComponent, public Adafruit_VL53L1X {
+class VL53L1XSensor : public PollingComponent, public Adafruit_VL53L1X {
  public:
+  sensor::Sensor *s_distance = new sensor::Sensor();
+  sensor::Sensor *s_window = new sensor::Sensor();
+
   VL53L1XSensor();
+
   void setup() override;
   void dump_config() override;
   float get_setup_priority() const override { return setup_priority::DATA; }
   void update() override;
-  //  void loop() override;
 
   static std::list<VL53L1XSensor *> vl53l1x_sensors;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 

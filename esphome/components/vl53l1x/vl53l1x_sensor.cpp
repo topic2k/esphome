@@ -17,12 +17,12 @@ std::list<VL53L1XSensor *>
 bool VL53L1XSensor::enable_pin_setup_complete = false;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 VL53L1XSensor::VL53L1XSensor() {
-  ESP_LOGE(TAG, " - VL53L1XSensor()");
   VL53L1XSensor::vl53l1x_sensors.push_back(this);
 }
 
 void VL53L1XSensor::dump_config() {
-  LOG_SENSOR("", "VL53L1X", this);
+  LOG_SENSOR("", "VL53L1X", this->s_distance);
+  LOG_SENSOR("", "VL53L1X", this->s_window);
   LOG_UPDATE_INTERVAL(this);
   LOG_I2C_DEVICE(this);
   LOG_PIN("  Enable Pin: ", this->enable_pin_);
@@ -58,7 +58,7 @@ void VL53L1XSensor::setup() {
   }
 
   if (!begin(address_to_set)) {
-    ESP_LOGE(TAG, "'%s' - Sensor init failed", this->name_.c_str());
+    ESP_LOGE(TAG, "'%s' - Sensor init failed", this->s_distance->get_name().c_str());
     this->mark_failed();
   }
   if (this->io_2v8_) {
@@ -79,8 +79,10 @@ void VL53L1XSensor::setup() {
     this->vl53l1x_set_offset(this->offset_);
   }
 
+  this->vl53l1x_set_distance_threshold(300, 400, 3, 1);
+
   if (!this->start_ranging()) {
-    ESP_LOGE(TAG, "'%s' - Couldn't start ranging. Error code %i", this->name_.c_str(), this->vl_status);
+    ESP_LOGE(TAG, "'%s' - Couldn't start ranging. Error code %i", this->s_distance->get_name().c_str(), this->vl_status);
     this->mark_failed();
   }
 }
@@ -99,7 +101,8 @@ void VL53L1XSensor::update() {
     // data is read out, time for another reading!
     this->clear_interrupt();
   }
-  publish_state(dstnc / 1000.0);  // convert from mm to m and publish the result
+  s_distance->publish_state(dstnc / 1000.0);  // convert from mm to m and publish the result
+  s_window->publish_state(NAN);
 }
 
 // void VL53L1XSensor::loop() {

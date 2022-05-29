@@ -146,7 +146,6 @@ class VL53L1X : public i2c::I2CDevice, public VL53L1XErrorCodes {  // NOLINT(cpp
     }
     while (!sensorState && !status) {
       status = vl53l1x_boot_state(&sensorState);
-      ESP_LOGE(TAG, "- Sensor, BootState status: %i", status);
       delay(2);
     }
     if (!status) {
@@ -359,7 +358,7 @@ class VL53L1X : public i2c::I2CDevice, public VL53L1XErrorCodes {  // NOLINT(cpp
    * @param   int_on_no_target = 1 (No longer used - just use 1)
    */
   VL53L1X_Error vl53l1x_set_distance_threshold(uint16_t ThreshLow, uint16_t thresh_high, uint8_t window,
-                                               uint8_t int_on_no_target);
+                                               uint8_t int_on_no_target = 0);
 
   /**
    * @brief This function returns the window detection mode (0=below; 1=above; 2=out; 3=in)
