@@ -347,17 +347,17 @@ class VL53L1X : public i2c::I2CDevice, public VL53L1XErrorCodes {  // NOLINT(cpp
   /**
    * @brief This function programs the threshold detection mode\n
    * Example:\n
-   * VL53L1X_SetDistanceThreshold(dev,100,300,0,1): Below 100 \n
-   * VL53L1X_SetDistanceThreshold(dev,100,300,1,1): Above 300 \n
-   * VL53L1X_SetDistanceThreshold(dev,100,300,2,1): Out of window \n
-   * VL53L1X_SetDistanceThreshold(dev,100,300,3,1): In window \n
+   * VL53L1X_SetDistanceThreshold(100,300,0,1): Below 100 \n
+   * VL53L1X_SetDistanceThreshold(100,300,1,1): Above 300 \n
+   * VL53L1X_SetDistanceThreshold(100,300,2,1): Out of window \n
+   * VL53L1X_SetDistanceThreshold(100,300,3,1): In window \n
    * @param   dev : device address
    * @param  	ThreshLow(in mm) : the threshold under which one the device raises an interrupt if Window = 0
    * @param 	thresh_high(in mm) :  the threshold above which one the device raises an interrupt if Window = 1
    * @param   window detection mode : 0=below, 1=above, 2=out, 3=in
    * @param   int_on_no_target = 1 (No longer used - just use 1)
    */
-  VL53L1X_Error vl53l1x_set_distance_threshold(uint16_t ThreshLow, uint16_t thresh_high, uint8_t window,
+  VL53L1X_Error vl53l1x_set_distance_threshold(uint16_t thresh_low, uint16_t thresh_high, uint8_t window,
                                                uint8_t int_on_no_target = 0);
 
   /**

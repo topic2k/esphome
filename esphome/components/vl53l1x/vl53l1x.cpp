@@ -88,7 +88,7 @@ void VL53L1XComponent::setup() {
 }
 
 void VL53L1XComponent::update() {
-  int16_t distance = 0;
+  int16_t distance = NAN;
 
   if (this->is_data_ready()) {
     // new measurement for the taking!
@@ -101,7 +101,9 @@ void VL53L1XComponent::update() {
     // data is read out, time for another reading!
     this->clear_interrupt();
   }
-  s_distance_->publish_state(distance);  // convert from mm to m and publish the result
+  if (s_distance_ != nullptr) {
+      s_distance_->publish_state(distance);
+  }
 
   if (s_window_ != nullptr) {
     s_window_->publish_state((bool) distance != 0);

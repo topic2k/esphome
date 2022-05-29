@@ -11,6 +11,7 @@ from esphome.const import (
     CONF_OFFSET,
     CONF_DISTANCE,
     CONF_LOW,
+    CONF_THRESHOLD,
     ICON_ARROW_EXPAND_VERTICAL,
     STATE_CLASS_MEASUREMENT,
     STATE_CLASS_NONE,
@@ -29,7 +30,6 @@ CONF_IO_2V8 = "io_2v8"
 CONF_IRQ_PIN = "irq_pin"
 CONF_LONG_RANGE = "long_range"
 CONF_TIMING_BUDGET = "timing_budget"
-CONF_WINDOW = "window"
 
 UNIT_MILLIMETER = "mm"
 
@@ -42,9 +42,18 @@ def check_keys(obj):
         raise cv.Invalid(msg)
 
     if obj[CONF_TIMING_BUDGET] not in (15, 20, 33, 50, 100, 200, 500):
-        msg = "Timing budget must be one of:\r"
-        msg += "15, 20, 33, 50, 100, 200 or 500 (ms)!\r"
+        msg = f"'{CONF_TIMING_BUDGET}' must be one of:\r"
+        msg += "  15, 20, 33, 50, 100, 200 or 500 (ms)!\r"
         raise cv.Invalid(msg)
+
+    if CONF_THRESHOLD in obj:
+        if obj[CONF_THRESHOLD][CONF_MODE] not in (0, 1, 2, 3):
+            msg = f"'{CONF_MODE}' must be one of 0, 1, 2 or 3.\r"
+            msg += f"  0 = below the '{CONF_LOW}' value.\r"
+            msg += f"  1 = above the '{CONF_HIGH}' value.\r"
+            msg += f"  2 = out, below the '{CONF_LOW}' value OR above the '{CONF_HIGH}' value.\r"
+            msg += f"  3 = in, above the '{CONF_LOW}' value AND below the '{CONF_HIGH}' value.\r"
+            raise cv.Invalid(msg)
     return obj
 
 
@@ -63,7 +72,7 @@ CONFIG_SCHEMA = cv.All(
                 accuracy_decimals=0,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
-            cv.Optional(CONF_DISTANCE): sensor.sensor_schema(
+            cv.Optional(CONF_THRESHOLD): sensor.sensor_schema(
                 icon="mdi:selection-ellipse-arrow-inside",
                 accuracy_decimals=0,
                 state_class=STATE_CLASS_NONE,
@@ -95,25 +104,34 @@ CONFIG_SCHEMA = cv.All(
 
 
 async def to_code(config):
-    var = cg.new_Pvariable(config[CONF_ID])
-    await cg.register_component(var, config)
-    await i2c.register_i2c_device(var, config)
+    component = cg.new_Pvariable(config[CONF_ID])
+    await cg.register_component(component, config)
+    await i2c.register_i2c_device(component, config)
 
     if CONF_ENABLE_PIN in config:
         enable = await cg.gpio_pin_expression(config[CONF_ENABLE_PIN])
-        cg.add(var.set_enable_pin(enable))
+        cg.add(component.set_enable_pin(enable))
 
     if CONF_IRQ_PIN in config:
         irq = await cg.gpio_pin_expression(config[CONF_IRQ_PIN])
-        cg.add(var.set_irg_pin(irq))
+        cg.add(component.set_irg_pin(irq))
 
-    cg.add(var.set_io_2v8(config[CONF_IO_2V8]))
-    cg.add(var.set_long_range(config[CONF_LONG_RANGE]))
-    cg.add(var.set_timing_budget(config[CONF_TIMING_BUDGET]))
-    cg.add(var.set_offset(config[CONF_OFFSET]))
+    cg.add(component.set_io_2v8(config[CONF_IO_2V8]))
+    cg.add(component.set_long_range(config[CONF_LONG_RANGE]))
+    cg.add(component.set_timing_budget(config[CONF_TIMING_BUDGET]))
+    cg.add(component.set_offset(config[CONF_OFFSET]))
 
-    sens = await sensor.new_sensor(config[CONF_DISTANCE])
-    cg.add(var.set_distance_sensor(sens))
-    if CONF_WINDOW:
-        sens = await sensor.new_sensor(config[CONF_WINDOW])
-        cg.add(var.set_window_sensor(sens))
+    if CONF_DISTANCE in config:
+        sens = await sensor.new_sensor(config[CONF_DISTANCE])
+        cg.add(component.set_distance_sensor(sens))
+
+    if CONF_THRESHOLD in config:
+        sens = await sensor.new_sensor(config[CONF_THRESHOLD])
+        cg.add(component.set_window_sensor(sens))
+        cg.add(
+            component.set_threshold(
+                config[CONF_THRESHOLD][CONF_LOW],
+                config[CONF_THRESHOLD][CONF_HIGH],
+                config[CONF_THRESHOLD][CONF_MODE],
+            )
+        )

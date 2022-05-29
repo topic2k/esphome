@@ -35,7 +35,9 @@ class VL53L1XComponent : public PollingComponent, public Adafruit_VL53L1X {
   void set_long_range(bool long_range) { this->long_range_ = long_range; }
   void set_timing_budget(uint16_t timing_budget) { this->timing_budget_ = timing_budget; }
   void set_offset(int16_t offset) { this->offset_ = offset; }
+  void set_threshold(uint16_t thresh_low, uint16_t thresh_high, uint8_t window_mode) {
 
+  }
  protected:
   static bool enable_pin_setup_complete;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
