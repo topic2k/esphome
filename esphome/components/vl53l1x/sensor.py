@@ -1,18 +1,22 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
+from esphome import pins
 from esphome.components import i2c, sensor
 from esphome.const import (
-    STATE_CLASS_MEASUREMENT,
-    ICON_ARROW_EXPAND_VERTICAL,
     CONF_ADDRESS,
     CONF_ENABLE_PIN,
+    CONF_HIGH,
+    CONF_ID,
+    CONF_MODE,
     CONF_OFFSET,
-    UNIT_METER,
+    CONF_DISTANCE,
+    CONF_LOW,
+    ICON_ARROW_EXPAND_VERTICAL,
+    STATE_CLASS_MEASUREMENT,
+    STATE_CLASS_NONE,
 )
-from esphome import pins
 
 DEPENDENCIES = ["i2c"]
-
 
 VL53L1X_I2C_ADDR = 0x29
 DEFAULT_CONF_IO_2V8 = False
@@ -21,16 +25,13 @@ DEFAULT_CONF_LONG_RANGE = True
 DEFAULT_CONF_TIMING_BUDGET = 100
 DEFAULT_CONF_OFFSET = 0
 
-
-vl53l1x_ns = cg.esphome_ns.namespace("vl53l1x")
-VL53L1XSensor = vl53l1x_ns.class_(
-    "VL53L1XSensor", sensor.Sensor, cg.PollingComponent, i2c.I2CDevice
-)
-
 CONF_IO_2V8 = "io_2v8"
 CONF_IRQ_PIN = "irq_pin"
 CONF_LONG_RANGE = "long_range"
 CONF_TIMING_BUDGET = "timing_budget"
+CONF_WINDOW = "window"
+
+UNIT_MILLIMETER = "mm"
 
 
 def check_keys(obj):
@@ -39,10 +40,7 @@ def check_keys(obj):
         msg += "re-addressing. Also if you have more then one VL53 device on the same\r"
         msg += "i2c bus, then all VL53 devices must have enable_pin defined."
         raise cv.Invalid(msg)
-    return obj
 
-
-def check_timing_budget(obj):
     if obj[CONF_TIMING_BUDGET] not in (15, 20, 33, 50, 100, 200, 500):
         msg = "Timing budget must be one of:\r"
         msg += "15, 20, 33, 50, 100, 200 or 500 (ms)!\r"
@@ -50,14 +48,33 @@ def check_timing_budget(obj):
     return obj
 
 
-# Valid timing budgets: 15, 20, 33, 50, 100, 200 and 500ms!
+vl53l1x_ns = cg.esphome_ns.namespace("vl53l1x")
+VL53L1XComponent = vl53l1x_ns.class_(
+    "VL53L1XComponent", cg.PollingComponent, i2c.I2CDevice
+)
+
 CONFIG_SCHEMA = cv.All(
-    sensor.sensor_schema(
-        VL53L1XSensor,
-        unit_of_measurement=UNIT_METER,
-        icon=ICON_ARROW_EXPAND_VERTICAL,
-        accuracy_decimals=3,
-        state_class=STATE_CLASS_MEASUREMENT,
+    cv.Schema(
+        {
+            cv.GenerateID(): cv.declare_id(VL53L1XComponent),
+            cv.Required(CONF_DISTANCE): sensor.sensor_schema(
+                unit_of_measurement=UNIT_MILLIMETER,
+                icon=ICON_ARROW_EXPAND_VERTICAL,
+                accuracy_decimals=0,
+                state_class=STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_DISTANCE): sensor.sensor_schema(
+                icon="mdi:selection-ellipse-arrow-inside",
+                accuracy_decimals=0,
+                state_class=STATE_CLASS_NONE,
+            ).extend(
+                {
+                    cv.Required(CONF_LOW): cv.int_range(0, 4000),
+                    cv.Required(CONF_HIGH): cv.int_range(0, 4000),
+                    cv.Required(CONF_MODE): cv.int_range(0, 3),
+                }
+            ),
+        }
     )
     .extend(
         {
@@ -74,13 +91,13 @@ CONFIG_SCHEMA = cv.All(
     .extend(cv.polling_component_schema(DEFAULT_POLLING_TIME))
     .extend(i2c.i2c_device_schema(VL53L1X_I2C_ADDR)),
     check_keys,
-    check_timing_budget,
 )
 
 
 async def to_code(config):
-    var = await sensor.new_sensor(config)
+    var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
+    await i2c.register_i2c_device(var, config)
 
     if CONF_ENABLE_PIN in config:
         enable = await cg.gpio_pin_expression(config[CONF_ENABLE_PIN])
@@ -95,4 +112,8 @@ async def to_code(config):
     cg.add(var.set_timing_budget(config[CONF_TIMING_BUDGET]))
     cg.add(var.set_offset(config[CONF_OFFSET]))
 
-    await i2c.register_i2c_device(var, config)
+    sens = await sensor.new_sensor(config[CONF_DISTANCE])
+    cg.add(var.set_distance_sensor(sens))
+    if CONF_WINDOW:
+        sens = await sensor.new_sensor(config[CONF_WINDOW])
+        cg.add(var.set_window_sensor(sens))

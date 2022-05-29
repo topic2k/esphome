@@ -7,22 +7,22 @@
  * in the vl53l1x integration directory.
  */
 
-#include "vl53l1x_sensor.h"
+#include "vl53l1x.h"
 
 namespace esphome {
 namespace vl53l1x {
 
-std::list<VL53L1XSensor *>
-    VL53L1XSensor::vl53l1x_sensors;                     // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-bool VL53L1XSensor::enable_pin_setup_complete = false;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::list<VL53L1XComponent *>
+    VL53L1XComponent::vl53l1x_sensors;                     // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+bool VL53L1XComponent::enable_pin_setup_complete = false;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
-VL53L1XSensor::VL53L1XSensor() {
-  VL53L1XSensor::vl53l1x_sensors.push_back(this);
+VL53L1XComponent::VL53L1XComponent() {
+  VL53L1XComponent::vl53l1x_sensors.push_back(this);
 }
 
-void VL53L1XSensor::dump_config() {
-  LOG_SENSOR("", "VL53L1X", this->s_distance);
-  LOG_SENSOR("", "VL53L1X", this->s_window);
+void VL53L1XComponent::dump_config() {
+  LOG_SENSOR("", "VL53L1X", this->s_distance_);
+  LOG_SENSOR("", "VL53L1X", this->s_window_);
   LOG_UPDATE_INTERVAL(this);
   LOG_I2C_DEVICE(this);
   LOG_PIN("  Enable Pin: ", this->enable_pin_);
@@ -34,8 +34,8 @@ void VL53L1XSensor::dump_config() {
   ESP_LOGCONFIG(TAG, "  offset: %i", this->offset_);
 }
 
-void VL53L1XSensor::setup() {
-  if (!esphome::vl53l1x::VL53L1XSensor::enable_pin_setup_complete) {
+void VL53L1XComponent::setup() {
+  if (!esphome::vl53l1x::VL53L1XComponent::enable_pin_setup_complete) {
     for (auto &vl53_sensor : vl53l1x_sensors) {
       if (vl53_sensor->enable_pin_ != nullptr) {
         // Set enable pin as OUTPUT and disable the enable pin to force vl53 to HW Standby mode
@@ -44,7 +44,7 @@ void VL53L1XSensor::setup() {
         vl53_sensor->enable_pin_->digital_write(false);
       }
     }
-    esphome::vl53l1x::VL53L1XSensor::enable_pin_setup_complete = true;
+    esphome::vl53l1x::VL53L1XComponent::enable_pin_setup_complete = true;
   }
 
   if (this->irq_pin_ != nullptr) {
@@ -58,7 +58,7 @@ void VL53L1XSensor::setup() {
   }
 
   if (!begin(address_to_set)) {
-    ESP_LOGE(TAG, "'%s' - Sensor init failed", this->s_distance->get_name().c_str());
+    ESP_LOGE(TAG, "'%s' - Sensor init failed", this->s_distance_->get_name().c_str());
     this->mark_failed();
   }
   if (this->io_2v8_) {
@@ -82,18 +82,18 @@ void VL53L1XSensor::setup() {
   this->vl53l1x_set_distance_threshold(300, 400, 3, 1);
 
   if (!this->start_ranging()) {
-    ESP_LOGE(TAG, "'%s' - Couldn't start ranging. Error code %i", this->s_distance->get_name().c_str(), this->vl_status);
+    ESP_LOGE(TAG, "'%s' - Couldn't start ranging. Error code %i", this->s_distance_->get_name().c_str(), this->vl_status);
     this->mark_failed();
   }
 }
 
-void VL53L1XSensor::update() {
-  int16_t dstnc = 0;
+void VL53L1XComponent::update() {
+  int16_t distance = 0;
 
   if (this->is_data_ready()) {
     // new measurement for the taking!
-    dstnc = this->get_distance();
-    if (dstnc == -1) {
+    distance = this->get_distance();
+    if (distance == -1) {
       // something went wrong!
       ESP_LOGE(TAG, "Couldn't get get_distance. Error code %i", this->vl_status);
       return;
@@ -101,15 +101,14 @@ void VL53L1XSensor::update() {
     // data is read out, time for another reading!
     this->clear_interrupt();
   }
-  s_distance->publish_state(dstnc / 1000.0);  // convert from mm to m and publish the result
-  s_window->publish_state(NAN);
+  s_distance_->publish_state(distance);  // convert from mm to m and publish the result
+
+  if (s_window_ != nullptr) {
+    s_window_->publish_state((bool) distance != 0);
+  }
+
 }
 
-// void VL53L1XSensor::loop() {
-//  uint16_t range_m = 0;
-//  range_m = this->read_range(true);
-//  publish_state(range_m);
-//}
 
 }  // namespace vl53l1x
 }  // namespace esphome

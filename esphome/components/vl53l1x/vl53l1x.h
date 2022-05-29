@@ -15,21 +15,20 @@
 namespace esphome {
 namespace vl53l1x {
 
-class VL53L1XSensor : public PollingComponent, public Adafruit_VL53L1X {
+class VL53L1XComponent : public PollingComponent, public Adafruit_VL53L1X {
  public:
-  sensor::Sensor *s_distance = new sensor::Sensor();
-  sensor::Sensor *s_window = new sensor::Sensor();
-
-  VL53L1XSensor();
+  VL53L1XComponent();
 
   void setup() override;
   void dump_config() override;
   float get_setup_priority() const override { return setup_priority::DATA; }
   void update() override;
 
-  static std::list<VL53L1XSensor *> vl53l1x_sensors;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+  static std::list<VL53L1XComponent *> vl53l1x_sensors;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
   // esphome configuration setters
+  void set_distance_sensor(sensor::Sensor *sensor_distance) { s_distance_ = sensor_distance; }
+  void set_window_sensor(sensor::Sensor *sensor_window) { s_window_ = sensor_window; }
   void set_enable_pin(GPIOPin *enable) { this->enable_pin_ = enable; }
   void set_irg_pin(GPIOPin *irq) { this->irq_pin_ = irq; }
   void set_io_2v8(bool io_2v8) { this->io_2v8_ = io_2v8; }
@@ -41,6 +40,9 @@ class VL53L1XSensor : public PollingComponent, public Adafruit_VL53L1X {
   static bool enable_pin_setup_complete;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
   /* esphome configuration variables */
+  sensor::Sensor *s_distance_;
+  sensor::Sensor *s_window_;
+
   bool io_2v8_ = false;
   bool long_range_ = true;
   uint16_t timing_budget_ = 100;
