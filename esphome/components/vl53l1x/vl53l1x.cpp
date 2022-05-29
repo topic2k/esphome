@@ -132,26 +132,26 @@ void VL53L1XComponent::update() {
 //int MIN_DISTANCE = 0; // mm
 //int FRONT_ZONE_CENTER = 175; // was 167, see UM2555 on st.com, centre = 175 has better return signal rate for the ROI #1
 //int BACK_ZONE_CENTER = 231;
+int PplCounter;
+int MAX_DISTANCE = 1000; // mm
+int MIN_DISTANCE = 0; // mm
+int FRONT_ZONE_CENTER = 175; // was 167, see UM2555 on st.com, centre = 175 has better return signal rate for the ROI #1
+int BACK_ZONE_CENTER = 231;
+int center[2] = {FRONT_ZONE_CENTER, BACK_ZONE_CENTER}; /* these are the spad center of the 2 4*16 zones */
+int Zone = 0;
+VL53L1X_Error status = 0;
+int8_t error;
+uint8_t byteData, sensorState=0;
+uint16_t wordData;
+uint16_t Distance, Signal;
+uint8_t range_status;
+uint8_t dataReady;
 
 void VL53L1XComponent::loop() {
-  if (!this->is_data_ready()) {
+  status = this->vl53l1x_check_for_data_ready(&dataReady);
+  if (!dataReady) {
     return;
   }
-
-  VL53L1X_Error status = 0;
-  int8_t error;
-  uint8_t byteData, sensorState=0;
-  uint16_t wordData;
-  uint16_t Distance, Signal;
-  uint8_t range_status;
-  int PplCounter;
-  int MAX_DISTANCE = 1000; // mm
-  int MIN_DISTANCE = 0; // mm
-  int FRONT_ZONE_CENTER = 175; // was 167, see UM2555 on st.com, centre = 175 has better return signal rate for the ROI #1
-  int BACK_ZONE_CENTER = 231;
-  int center[2] = {FRONT_ZONE_CENTER, BACK_ZONE_CENTER}; /* these are the spad center of the 2 4*16 zones */
-  int Zone = 0;
-
   status += vl53l1x_get_range_status(&range_status);
   status += vl53l1x_get_distance(&Distance);
   status += vl53l1x_get_signal_per_spad(&Signal);
@@ -184,11 +184,11 @@ void VL53L1XComponent::loop() {
     Distance = MAX_DISTANCE;
   }
   // inject the new ranged distance in the people counting algorithm
-    PplCounter = ProcessPeopleCountingData(Distance, Zone, range_status);
-    ESP_LOGD(TAG, "People: %i", PplCounter);
-    ESP_LOGD(TAG, "Zone: %i, Distance: %i, Signal: %i", Zone, Distance, Signal);
-    Zone++;
-    Zone = Zone % 2;
+  PplCounter = ProcessPeopleCountingData(Distance, Zone, range_status);
+  ESP_LOGD(TAG, "People: %i", PplCounter);
+  ESP_LOGD(TAG, "Zone: %i, Distance: %i, Signal: %i", Zone, Distance, Signal);
+  Zone++;
+  Zone = Zone % 2;
 }
 
 
