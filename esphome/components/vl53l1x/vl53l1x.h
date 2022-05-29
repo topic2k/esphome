@@ -23,8 +23,10 @@ class VL53L1XComponent : public PollingComponent, public Adafruit_VL53L1X {
   void dump_config() override;
   float get_setup_priority() const override { return setup_priority::DATA; }
   void update() override;
+  void loop() override;
 
   static std::list<VL53L1XComponent *> vl53l1x_sensors;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+  int ProcessPeopleCountingData(int16_t Distance, uint8_t zone, uint8_t RangeStatus);
 
   // esphome configuration setters
   void set_distance_sensor(sensor::Sensor *sensor_distance) { s_distance_ = sensor_distance; }
