@@ -12,8 +12,7 @@
 namespace esphome {
 namespace vl53l1x {
 
-std::list<VL53L1XComponent *>
-    VL53L1XComponent::vl53l1x_sensors;                     // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::list<VL53L1XComponent *> VL53L1XComponent::vl53l1x_sensors;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 bool VL53L1XComponent::enable_pin_setup_complete = false;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 VL53L1XComponent::VL53L1XComponent() {
@@ -21,17 +20,7 @@ VL53L1XComponent::VL53L1XComponent() {
 }
 
 void VL53L1XComponent::dump_config() {
-  if (this->s_distance_ != nullptr) {
-    LOG_SENSOR("", "VL53L1X", this->s_distance_);
-  }
-  if (this->s_window_ != nullptr) {
-    LOG_SENSOR("", "VL53L1X", this->s_window_);
-    ESP_LOGCONFIG(TAG, "  threshold low: %i mm", this->threshold_low_);
-    ESP_LOGCONFIG(TAG, "  threshold high: %i mm", this->threshold_high_);
-    std::string modes[4] = {"below", "above", "outside", "inside"};
-    ESP_LOGCONFIG(TAG, "  threshold mode: %s", modes[this->threshold_mode_].c_str());
-
-  }
+  ESP_LOGCONFIG(TAG, "VL53L1X config:");
   LOG_UPDATE_INTERVAL(this);
   LOG_I2C_DEVICE(this);
   LOG_PIN("  Enable Pin: ", this->enable_pin_);
@@ -41,6 +30,15 @@ void VL53L1XComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "  long_range: %s", this->long_range_ ? "true" : "false");
   ESP_LOGCONFIG(TAG, "  timing_budget: %i", this->timing_budget_);
   ESP_LOGCONFIG(TAG, "  offset: %i", this->offset_);
+  if (this->s_distance_ != nullptr) {
+    LOG_SENSOR("", "distance sensor", this->s_distance_);
+  }
+  if (this->s_threshold_ != nullptr) {
+    LOG_SENSOR("", "threshold sensor", this->s_threshold_);
+    ESP_LOGCONFIG(TAG, "  threshold low: %i mm", this->threshold_low_);
+    ESP_LOGCONFIG(TAG, "  threshold high: %i mm", this->threshold_high_);
+    ESP_LOGCONFIG(TAG, "  threshold mode: %i", this->threshold_mode_);
+  }
 }
 
 void VL53L1XComponent::setup() {
@@ -88,7 +86,15 @@ void VL53L1XComponent::setup() {
     this->vl53l1x_set_offset(this->offset_);
   }
 
-  this->vl53l1x_set_distance_threshold(300, 400, 3, 1);
+  if (this->s_threshold_ != nullptr) {
+      ESP_LOGD(TAG, "'%s' - setting threshold mode", this->s_threshold_->get_name().c_str());
+    this->vl53l1x_set_distance_threshold(
+      this->threshold_low_,
+      this->threshold_high_,
+      this->threshold_mode_,
+      1
+    );
+  }
 
   if (!this->start_ranging()) {
     ESP_LOGE(TAG, "'%s' - Couldn't start ranging. Error code %i", this->s_distance_->get_name().c_str(), this->vl_status);
@@ -97,7 +103,7 @@ void VL53L1XComponent::setup() {
 }
 
 void VL53L1XComponent::update() {
-  int16_t distance = NAN;
+  int16_t distance = 0;
 
   if (this->is_data_ready()) {
     // new measurement for the taking!
@@ -110,14 +116,13 @@ void VL53L1XComponent::update() {
     // data is read out, time for another reading!
     this->clear_interrupt();
   }
-  if (s_distance_ != nullptr) {
-      s_distance_->publish_state(distance);
+  if (this->s_distance_ != nullptr) {
+      this->s_distance_->publish_state(distance);
   }
 
-  if (s_window_ != nullptr) {
-    s_window_->publish_state((bool) distance != 0);
+  if (this->s_threshold_ != nullptr) {
+      this->s_threshold_->publish_state((bool) distance != 0);
   }
-
 }
 
 

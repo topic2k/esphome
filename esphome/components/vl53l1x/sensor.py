@@ -51,8 +51,8 @@ def check_keys(obj):
             msg = f"'{CONF_MODE}' must be one of 0, 1, 2 or 3.\r"
             msg += f"  0 = below the '{CONF_LOW}' value.\r"
             msg += f"  1 = above the '{CONF_HIGH}' value.\r"
-            msg += f"  2 = out, below the '{CONF_LOW}' value OR above the '{CONF_HIGH}' value.\r"
-            msg += f"  3 = in, above the '{CONF_LOW}' value AND below the '{CONF_HIGH}' value.\r"
+            msg += f"  2 = outside (below the '{CONF_LOW}' value OR above the '{CONF_HIGH}' value).\r"
+            msg += f"  3 = inside (above the '{CONF_LOW}' value AND below the '{CONF_HIGH}' value).\r"
             raise cv.Invalid(msg)
     return obj
 
@@ -80,7 +80,7 @@ CONFIG_SCHEMA = cv.All(
                 {
                     cv.Required(CONF_LOW): cv.int_range(0, 4000),
                     cv.Required(CONF_HIGH): cv.int_range(0, 4000),
-                    cv.Required(CONF_MODE): cv.int_range(0, 3),
+                    cv.Required(CONF_MODE): cv.int_,
                 }
             ),
         }
@@ -122,12 +122,12 @@ async def to_code(config):
     cg.add(component.set_offset(config[CONF_OFFSET]))
 
     if CONF_DISTANCE in config:
-        sens = await sensor.new_sensor(config[CONF_DISTANCE])
-        cg.add(component.set_distance_sensor(sens))
+        sens_dist = await sensor.new_sensor(config[CONF_DISTANCE])
+        cg.add(component.set_distance_sensor(sens_dist))
 
     if CONF_THRESHOLD in config:
-        sens = await sensor.new_sensor(config[CONF_THRESHOLD])
-        cg.add(component.set_window_sensor(sens))
+        sens_thresh = await sensor.new_sensor(config[CONF_THRESHOLD])
+        cg.add(component.set_threshold_sensor(sens_thresh))
         cg.add(
             component.set_threshold(
                 config[CONF_THRESHOLD][CONF_LOW],

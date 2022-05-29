@@ -28,7 +28,7 @@ class VL53L1XComponent : public PollingComponent, public Adafruit_VL53L1X {
 
   // esphome configuration setters
   void set_distance_sensor(sensor::Sensor *sensor_distance) { s_distance_ = sensor_distance; }
-  void set_window_sensor(sensor::Sensor *sensor_window) { s_window_ = sensor_window; }
+  void set_threshold_sensor(sensor::Sensor *sensor_threshold) { s_threshold_ = sensor_threshold; }
   void set_enable_pin(GPIOPin *enable) { this->enable_pin_ = enable; }
   void set_irg_pin(GPIOPin *irq) { this->irq_pin_ = irq; }
   void set_io_2v8(bool io_2v8) { this->io_2v8_ = io_2v8; }
@@ -45,8 +45,8 @@ class VL53L1XComponent : public PollingComponent, public Adafruit_VL53L1X {
   static bool enable_pin_setup_complete;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
   /* esphome configuration variables */
-  sensor::Sensor *s_distance_;
-  sensor::Sensor *s_window_;
+  sensor::Sensor *s_distance_{nullptr};
+  sensor::Sensor *s_threshold_{nullptr};
 
   bool io_2v8_ = false;
   bool long_range_ = true;
