@@ -166,10 +166,10 @@ VL53L1X_Error VL53L1X::vl53l1x_sensor_init() {
     status = this->vl53l1x_wr_byte(addr, VL51L1X_DEFAULT_CONFIGURATION[addr - 0x2D]);
   }
   status = this->vl53l1x_start_ranging();
+  tmp = 0;
   while (tmp == 0) {
     status = this->vl53l1x_check_for_data_ready(&tmp);
   }
-  tmp = 0;
   status = this->vl53l1x_clear_interrupt();
   status = this->vl53l1x_stop_ranging();
   status = this->vl53l1x_wr_byte(VL53L1X::VL53L1X_VHV_CONFIG_TIMEOUT_MACROP_LOOP_BOUND, 0x09); /* two bounds VHV */

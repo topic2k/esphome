@@ -29,11 +29,11 @@ void VL53L1XComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "  long_range: %s", this->long_range_ ? "true" : "false");
   ESP_LOGCONFIG(TAG, "  timing_budget: %i", this->timing_budget_);
   ESP_LOGCONFIG(TAG, "  offset: %i", this->offset_);
-  if (this->s_distance_ != nullptr) {
-    LOG_SENSOR("", "distance sensor", this->s_distance_);
+  if (this->sensor_distance_ != nullptr) {
+    LOG_SENSOR("", "distance sensor", this->sensor_distance_);
   }
-  if (this->s_threshold_ != nullptr) {
-    LOG_SENSOR("", "threshold sensor", this->s_threshold_);
+  if (this->sensor_threshold_ != nullptr) {
+    LOG_SENSOR("", "threshold sensor", this->sensor_threshold_);
     ESP_LOGCONFIG(TAG, "  threshold low: %i mm", this->threshold_low_);
     ESP_LOGCONFIG(TAG, "  threshold high: %i mm", this->threshold_high_);
     ESP_LOGCONFIG(TAG, "  threshold mode: %i", this->threshold_mode_);
@@ -64,37 +64,42 @@ void VL53L1XComponent::setup() {
   }
 
   if (!begin(address_to_set)) {
-    ESP_LOGE(TAG, "'%s' - Sensor init failed", this->s_distance_->get_name().c_str());
+    ESP_LOGE(TAG, "init failed");
     this->mark_failed();
   }
-  if (this->io_2v8_) {
-    uint8_t val;
-    VL53L1X_Error status;
-    status = this->vl53l1x_rd_byte(PAD_I2C_HV_EXTSUP_CONFIG, &val);
-    if (status == this->VL53L1X_ERROR_NONE) {
-      val = (val & 0xfe) | 0x01;
-      this->vl53l1x_wr_byte(PAD_I2C_HV_EXTSUP_CONFIG, val);
-    }
+//  if (this->io_2v8_) {
+//    uint8_t val;
+//    VL53L1X_Error status;
+//    status = this->vl53l1x_rd_byte(PAD_I2C_HV_EXTSUP_CONFIG, &val);
+//    if (status == this->VL53L1X_ERROR_NONE) {
+//      val = (val & 0xfe) | 0x01;
+//      this->vl53l1x_wr_byte(PAD_I2C_HV_EXTSUP_CONFIG, val);
+//    }
+//  }
+//
+//  this->set_distance_mode(this->long_range_ ? 2 : 1);
+//  // Valid timing budgets: 15, 20, 33, 50, 100, 200 and 500ms!
+//  this->vl53l1x_set_timing_budget_in_ms(this->timing_budget_);
+//
+//  if (this->offset_ != 0) {
+//    this->vl53l1x_set_offset(this->offset_);
+//  }
+//
+//  if (this->sensor_threshold_ != nullptr) {
+//    ESP_LOGD(TAG, "'%s' - setting threshold mode", this->sensor_threshold_->get_name().c_str());
+//    this->vl53l1x_set_distance_threshold(this->threshold_low_, this->threshold_high_, this->threshold_mode_, 1);
+//  }
+  int status = 0;
+  status += this->vl53l1x_set_distance_mode(2);
+  status += this->set_timing_budget_ms(33);
+  status += this->vl53l1x_set_inter_measurement_in_ms(33);
+  status += this->vl53l1x_set_roi(8, 16);
+  if (status != 0) {
+    ESP_LOGE(TAG, "Initialization or configuration of the device failed");
   }
-
-  this->set_distance_mode(this->long_range_ ? 2 : 1);
-  // Valid timing budgets: 15, 20, 33, 50, 100, 200 and 500ms!
-  this->vl53l1x_set_timing_budget_in_ms(this->timing_budget_);
-
-  if (this->offset_ != 0) {
-    this->vl53l1x_set_offset(this->offset_);
-  }
-
-  if (this->s_threshold_ != nullptr) {
-    ESP_LOGD(TAG, "'%s' - setting threshold mode", this->s_threshold_->get_name().c_str());
-    this->vl53l1x_set_distance_threshold(this->threshold_low_, this->threshold_high_, this->threshold_mode_, 1);
-  }
-
-  this->vl53l1x_set_roi(8, 16);
 
   if (!this->start_ranging()) {
-    ESP_LOGE(TAG, "'%s' - Couldn't start ranging. Error code %i", this->s_distance_->get_name().c_str(),
-             this->vl_status);
+    ESP_LOGE(TAG, "'Couldn't start ranging. Error code %i", this->vl_status);
     this->mark_failed();
   }
 }
@@ -113,12 +118,12 @@ void VL53L1XComponent::update() {
 //    // data is read out, time for another reading!
 //    this->clear_interrupt();
 //  }
-//  if (this->s_distance_ != nullptr) {
-//    this->s_distance_->publish_state(distance);
+//  if (this->sensor_distance_ != nullptr) {
+//    this->sensor_distance_->publish_state(distance);
 //  }
 //
-//  if (this->s_threshold_ != nullptr) {
-//    this->s_threshold_->publish_state((bool) distance != 0);
+//  if (this->sensor_threshold_ != nullptr) {
+//    this->sensor_threshold_->publish_state((bool) distance != 0);
 //  }
 }
 
@@ -152,6 +157,7 @@ void VL53L1XComponent::loop() {
   if (!dataReady) {
     return;
   }
+  dataReady = 0;
   status += vl53l1x_get_range_status(&range_status);
   status += vl53l1x_get_distance(&Distance);
   status += vl53l1x_get_signal_per_spad(&Signal);
@@ -192,7 +198,7 @@ void VL53L1XComponent::loop() {
 }
 
 
-int VL53L1XComponent::ProcessPeopleCountingData(int16_t Distance, uint8_t zone, uint8_t RangeStatus) {
+int VL53L1XComponent::ProcessPeopleCountingData(int16_t distance, uint8_t zone, uint8_t RangeStatus) {
   static int PathTrack[] = {0,0,0,0};
   static int PathTrackFillingSize = 1; // init this to 1 as we start from state where nobody is any of the zones
   static int LeftPreviousStatus = NOBODY;
@@ -215,13 +221,13 @@ int VL53L1XComponent::ProcessPeopleCountingData(int16_t Distance, uint8_t zone, 
 
   // Add just picked distance to the table of the corresponding zone
   if (DistancesTableSize[zone] < DISTANCES_ARRAY_SIZE) {
-    Distances[zone][DistancesTableSize[zone]] = Distance;
+    Distances[zone][DistancesTableSize[zone]] = distance;
     DistancesTableSize[zone] ++;
   }
   else {
     for (i=1; i<DISTANCES_ARRAY_SIZE; i++)
       Distances[zone][i-1] = Distances[zone][i];
-    Distances[zone][DISTANCES_ARRAY_SIZE-1] = Distance;
+    Distances[zone][DISTANCES_ARRAY_SIZE-1] = distance;
   }
 
   // pick up the min distance
@@ -283,11 +289,12 @@ int VL53L1XComponent::ProcessPeopleCountingData(int16_t Distance, uint8_t zone, 
     trace_count = 0;
 
   if (trace_count < TIMES_WITH_NO_EVENT)
-//    printf ("%d,%d,%d,%d,%d\n", zone, Distance, MinDistance, RangeStatus, PeopleCount);
+//    printf ("%d,%d,%d,%d,%d\n", zone, distance, MinDistance, RangeStatus, PeopleCount);
 #endif
 
     // if an event has occured
     if (AnEventHasOccured) {
+      ESP_LOGD(TAG, "AnEventHasOccured");
       if (PathTrackFillingSize < 4) {
         PathTrackFillingSize ++;
       }
