@@ -12,12 +12,11 @@
 namespace esphome {
 namespace vl53l1x {
 
-std::list<VL53L1XComponent *> VL53L1XComponent::vl53l1x_sensors;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::list<VL53L1XComponent *>
+    VL53L1XComponent::vl53l1x_sensors;                     // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 bool VL53L1XComponent::enable_pin_setup_complete = false;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
-VL53L1XComponent::VL53L1XComponent() {
-  VL53L1XComponent::vl53l1x_sensors.push_back(this);
-}
+VL53L1XComponent::VL53L1XComponent() { VL53L1XComponent::vl53l1x_sensors.push_back(this); }
 
 void VL53L1XComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "VL53L1X config:");
@@ -87,17 +86,13 @@ void VL53L1XComponent::setup() {
   }
 
   if (this->s_threshold_ != nullptr) {
-      ESP_LOGD(TAG, "'%s' - setting threshold mode", this->s_threshold_->get_name().c_str());
-    this->vl53l1x_set_distance_threshold(
-      this->threshold_low_,
-      this->threshold_high_,
-      this->threshold_mode_,
-      1
-    );
+    ESP_LOGD(TAG, "'%s' - setting threshold mode", this->s_threshold_->get_name().c_str());
+    this->vl53l1x_set_distance_threshold(this->threshold_low_, this->threshold_high_, this->threshold_mode_, 1);
   }
 
   if (!this->start_ranging()) {
-    ESP_LOGE(TAG, "'%s' - Couldn't start ranging. Error code %i", this->s_distance_->get_name().c_str(), this->vl_status);
+    ESP_LOGE(TAG, "'%s' - Couldn't start ranging. Error code %i", this->s_distance_->get_name().c_str(),
+             this->vl_status);
     this->mark_failed();
   }
 }
@@ -117,14 +112,13 @@ void VL53L1XComponent::update() {
     this->clear_interrupt();
   }
   if (this->s_distance_ != nullptr) {
-      this->s_distance_->publish_state(distance);
+    this->s_distance_->publish_state(distance);
   }
 
   if (this->s_threshold_ != nullptr) {
-      this->s_threshold_->publish_state((bool) distance != 0);
+    this->s_threshold_->publish_state((bool) distance != 0);
   }
 }
-
 
 }  // namespace vl53l1x
 }  // namespace esphome

@@ -55,7 +55,6 @@ class VL53L1XComponent : public PollingComponent, public Adafruit_VL53L1X {
   uint16_t threshold_low_;
   uint16_t threshold_high_;
   uint8_t threshold_mode_;
-
 };
 
 }  // namespace vl53l1x
