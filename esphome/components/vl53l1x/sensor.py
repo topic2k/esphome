@@ -66,7 +66,7 @@ CONFIG_SCHEMA = cv.All(
     cv.Schema(
         {
             cv.GenerateID(): cv.declare_id(VL53L1XComponent),
-            cv.Required(CONF_DISTANCE): sensor.sensor_schema(
+            cv.Optional(CONF_DISTANCE): sensor.sensor_schema(
                 unit_of_measurement=UNIT_MILLIMETER,
                 icon=ICON_ARROW_EXPAND_VERTICAL,
                 accuracy_decimals=0,

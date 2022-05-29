@@ -21,8 +21,17 @@ VL53L1XComponent::VL53L1XComponent() {
 }
 
 void VL53L1XComponent::dump_config() {
-  LOG_SENSOR("", "VL53L1X", this->s_distance_);
-  LOG_SENSOR("", "VL53L1X", this->s_window_);
+  if (this->s_distance_ != nullptr) {
+    LOG_SENSOR("", "VL53L1X", this->s_distance_);
+  }
+  if (this->s_window_ != nullptr) {
+    LOG_SENSOR("", "VL53L1X", this->s_window_);
+    ESP_LOGCONFIG(TAG, "  threshold low: %i mm", this->threshold_low_);
+    ESP_LOGCONFIG(TAG, "  threshold high: %i mm", this->threshold_high_);
+    std::string modes[4] = {"below", "above", "outside", "inside"};
+    ESP_LOGCONFIG(TAG, "  threshold mode: %s", modes[this->threshold_mode_].c_str());
+
+  }
   LOG_UPDATE_INTERVAL(this);
   LOG_I2C_DEVICE(this);
   LOG_PIN("  Enable Pin: ", this->enable_pin_);
